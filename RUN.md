@@ -1,0 +1,218 @@
+# How to Run the Backend and Connect the IEMOCAP Dataset
+
+Follow these steps to run the backend (BE) and get responses that use the IEMOCAP dataset.
+
+---
+
+## What you need
+
+- **Node.js** (v18+)
+- **Python** (3.9+)
+- **IEMOCAP dataset** – downloaded from [Kaggle](https://www.kaggle.com/datasets/samuelsamsudinng/iemocap-emotion-speech-database) and extracted on your laptop
+- **OpenAI API key** (for LLM replies) – get one at [OpenAI API keys](https://platform.openai.com/api-keys)
+
+---
+
+## Step 1: Place the IEMOCAP dataset
+
+After you download and extract the Kaggle zip, your folder should look like **one** of these:
+
+**Option A – Sessions inside an `IEMOCAP` folder:**
+```
+SomeFolder/
+  IEMOCAP/
+    Session1/
+      sentences/wav/...
+      dialog/EmoEvaluation/...
+    Session2/
+    ...
+```
+
+**Option B – Sessions at the top level (common with Kaggle):**
+```
+SomeFolder/
+  Session1/
+    sentences/wav/...
+    dialog/EmoEvaluation/...
+  Session2/
+  ...
+```
+
+Remember the path to **SomeFolder** (e.g. `D:\Datasets\iemocap-emotion-speech-database` or `D:\My Research Project\my-research\data`). You will use it as `IEMOCAP_PATH` in the next step.
+
+---
+
+## Step 2: Connect the dataset and train the emotion model (Python)
+
+Open a terminal in the **project root** (`d:\My Research Project\my-research`).
+
+### 2.1 Install Python dependencies
+
+```powershell
+cd ml
+pip install -r requirements.txt
+cd ..
+```
+
+### 2.2 Set the dataset path and train
+
+Set `IEMOCAP_PATH` to the folder that **contains** `IEMOCAP` or `Session1` (use your real path):
+
+**Windows (PowerShell):**
+```powershell
+$env:IEMOCAP_PATH="D:\path\to\folder\that\contains\IEMOCAP\or\Session1"
+python ml/train_ser.py
+```
+
+**Example** if IEMOCAP is at `D:\Datasets\iemocap-emotion-speech-database` and that folder has `Session1`, `Session2`, ...:
+```powershell
+$env:IEMOCAP_PATH="D:\Datasets\iemocap-emotion-speech-database"
+python ml/train_ser.py
+```
+
+You should see something like:
+- `Loaded IEMOCAP from ...`
+- `Loaded XXXXX samples`
+- `Training MLP...`
+- `Test accuracy: 0.xxx`
+- `Saved model and config to ...\ml\models`
+
+This connects the dataset and builds the emotion model. The chatbot will use it for **voice** emotion.
+
+---
+
+## Step 3: Run the Emotion API (Python backend)
+
+Keep the same terminal (or open a new one in the project root):
+
+```powershell
+python -m uvicorn ml.app:app --reload --port 5002
+```
+
+Leave this running. You should see:
+- `SER model loaded from ...` (if training worked)
+- `Uvicorn running on http://0.0.0.0:5002`
+
+This is the **emotion backend** that uses the IEMOCAP-trained model. The Node backend will call it to get emotion from text and voice.
+
+---
+
+## Step 4: Run the Node backend (chat + LLM)
+
+Open a **second terminal** in the project root.
+
+### 4.1 Install dependencies and set environment
+
+```powershell
+cd server
+npm install
+```
+
+Create `server/.env` (copy from example and edit):
+
+```powershell
+copy .env.example .env
+notepad .env
+```
+
+Put this in `server/.env` (use your real OpenAI key and keep Emotion API URL as below):
+
+```env
+OPENAI_API_KEY=sk-your-openai-key-here
+EMOTION_API_URL=http://localhost:5002
+```
+
+- `OPENAI_API_KEY` – required for LLM responses.
+- `EMOTION_API_URL` – connects the Node backend to the dataset (via the emotion API you started in Step 3).
+
+### 4.2 Start the Node server
+
+```powershell
+npm start
+```
+
+You should see:
+- `Server running at http://localhost:5001`
+
+This is the **main backend (BE)**. It uses the Emotion API (and thus the IEMOCAP dataset) to get emotion and then the LLM to generate the reply.
+
+---
+
+## Step 5: Run the frontend and connect to the backend
+
+Open a **third terminal** in the project root.
+
+### 5.1 Set the chat API URL
+
+Create `.env` in the **project root** (next to `package.json`):
+
+```env
+REACT_APP_CHAT_API_URL=http://localhost:5001
+```
+
+This makes the React app send messages to your Node backend.
+
+### 5.2 Start the React app
+
+```powershell
+npm install
+npm start
+```
+
+Browser will open at [http://localhost:3000](http://localhost:3000). You can now chat; replies go through the backend and use the dataset (see below).
+
+---
+
+## How you get a “response from the dataset”
+
+The dataset is used like this:
+
+1. **You send a message** (typed or by voice).
+2. **Node backend** receives it (and optional voice audio).
+3. **Emotion API** (Step 3):
+   - For **text**: uses keyword-based emotion (aligned with IEMOCAP labels: neutral, happy, angry, sad).
+   - For **voice**: uses the **IEMOCAP-trained SER model** (trained on the dataset in Step 2) to predict emotion from your audio.
+4. **Node backend** takes that emotion and puts it in the **LLM system prompt** (e.g. “The user appears to be feeling: sad”).
+5. **LLM** generates an empathetic reply based on that emotion.
+6. You see that reply in the chat.
+
+So the **response you get is driven by the dataset**: the emotion that steers the reply comes from the IEMOCAP-based model (voice) and text rules. The actual reply text is generated by the LLM (or by the built-in fallback if the backend is not used).
+
+---
+
+## Quick checklist
+
+| Step | What to run | Port |
+|------|-------------|------|
+| 1 | Place IEMOCAP folder and note path | - |
+| 2 | `$env:IEMOCAP_PATH="your\path"; python ml/train_ser.py` | - |
+| 3 | `python -m uvicorn ml.app:app --reload --port 5002` | 5002 (Emotion API) |
+| 4 | `cd server`, create `.env`, then `npm start` | 5001 (Node BE) |
+| 5 | Root `.env` with `REACT_APP_CHAT_API_URL=http://localhost:5001`, then `npm start` | 3000 (Frontend) |
+
+### Run both backends with one command (optional)
+
+**Windows (PowerShell):**
+```powershell
+.\scripts\run-backend.ps1
+```
+This opens the Emotion API in a new window and runs the Node backend in the current window. You can also run Step 3 and Step 4 in two separate terminals.
+
+---
+
+## Troubleshooting
+
+- **“IEMOCAP not found”**  
+  `IEMOCAP_PATH` must point to a folder that contains either `IEMOCAP` (with Session1 inside) or `Session1` directly. Check that `Session1/sentences/wav` and `Session1/dialog/EmoEvaluation` exist.
+
+- **“No samples found”**  
+  Make sure the path uses the correct slashes and that the evaluation files (e.g. `*impro*.txt`, `*script*.txt`) are inside `dialog/EmoEvaluation`.
+
+- **“LLM not configured”**  
+  Add `OPENAI_API_KEY=sk-...` to `server/.env` and restart the Node server.
+
+- **Chat doesn’t use the backend**  
+  In the **project root** `.env` set `REACT_APP_CHAT_API_URL=http://localhost:5001` and restart React (`npm start`).
+
+- **Emotion API not used**  
+  In `server/.env` set `EMOTION_API_URL=http://localhost:5002` and ensure the Emotion API (Step 3) is running on port 5002.
