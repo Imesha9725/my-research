@@ -4,6 +4,7 @@ import './Chat.css';
 
 const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
 
+// welcome messgae for my chetbot
 const WELCOME_MESSAGE = {
   id: 'welcome',
   role: 'bot',
