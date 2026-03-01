@@ -2,13 +2,7 @@
 REM Edit the path below to YOUR IEMOCAP folder, then run this script.
 REM Example: set IEMOCAP_PATH=D:\Datasets\iemocap-emotion-speech-database
 
-set IEMOCAP_PATH=D:\path\to\folder\containing\Session1
-if "%IEMOCAP_PATH%"=="D:\path\to\folder\containing\Session1" (
-  echo Please edit this file and set IEMOCAP_PATH to your real dataset path.
-  echo Then run this script again.
-  pause
-  exit /b 1
-)
+set IEMOCAP_PATH=D:\My Research Project\IEMOCAP_full_release
 
 cd /d "%~dp0.."
 echo Installing Python dependencies...
