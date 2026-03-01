@@ -13,6 +13,9 @@ echo.
 echo Training model with IEMOCAP at: %IEMOCAP_PATH%
 python ml/train_ser.py
 echo.
+echo Extracting dataset responses...
+python ml/extract_dataset_responses.py
+echo.
 if exist ml\models\ser_model.joblib (
   echo SUCCESS. Model saved in ml\models\
   echo Next: start Emotion API and Node backend - see HOW-TO-RUN.md

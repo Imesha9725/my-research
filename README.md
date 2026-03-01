@@ -22,7 +22,7 @@ Open [http://localhost:3000](http://localhost:3000). The chatbot works with buil
 
 ## Full setup (with IEMOCAP + LLM)
 
-### Step 1: Train the SER model (one time)
+### Step 1: Train the SER model and extract dataset responses (one time)
 
 Open PowerShell and run:
 
@@ -38,14 +38,21 @@ pip install -r requirements.txt
 cd ..
 ```
 
-Set the dataset path and train:
+Set the dataset path and train the SER model:
 
 ```powershell
 $env:IEMOCAP_PATH="D:\My Research Project\IEMOCAP_full_release"
 python ml/train_ser.py
 ```
 
-You should see something like: `Loaded XXXXX samples` and `Saved model and config to ...\ml\models`.
+Extract responses from the dataset (so the chatbot uses IEMOCAP dialogue as replies):
+
+```powershell
+$env:IEMOCAP_PATH="D:\My Research Project\IEMOCAP_full_release"
+python ml/extract_dataset_responses.py
+```
+
+This creates `ml/models/dataset_responses.json`. The chatbot will use these dataset responses first; if none match, it falls back to built-in responses. If your IEMOCAP has no transcript files, you can create `ml/models/dataset_responses.json` manually with format: `{"sad": ["response1", "response2"], "happy": [...], "angry": [...], "neutral": [...]}`.
 
 ---
 
