@@ -13,7 +13,7 @@ import librosa
 import joblib
 from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import StandardScaler, LabelEncoder
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, cross_val_score
 
 # Add project root
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -68,8 +68,12 @@ def main():
     X_train_s = scaler.fit_transform(X_train)
     X_test_s = scaler.transform(X_test)
 
-    print("Training MLP...")
-    clf = MLPClassifier(hidden_layer_sizes=(256, 128), max_iter=200, random_state=42)
+    # 5-fold cross-validation for better training assessment
+    clf = MLPClassifier(hidden_layer_sizes=(512, 256, 128), max_iter=500, random_state=42, early_stopping=True)
+    cv_scores = cross_val_score(clf, X_train_s, y_train, cv=5)
+    print(f"5-fold CV accuracy: {cv_scores.mean():.3f} (+/- {cv_scores.std() * 2:.3f})")
+
+    print("Training final MLP...")
     clf.fit(X_train_s, y_train)
     acc = clf.score(X_test_s, y_test)
     print(f"Test accuracy: {acc:.3f}")

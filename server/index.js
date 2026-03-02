@@ -134,7 +134,7 @@ const TOPIC_RESPONSES = {
   someone_sick: ["I'm so sorry to hear someone close to you is sick. Take a deep breath. It's natural to feel scared and worried. Try to stay calm—your love and care mean a lot to them. You're not alone. I'm here. Would you like to talk about it? Breathe slowly; things will be okay.", "I hear you. When a family member or loved one is ill, it's really hard. Your feelings are valid. Try to relax your mind—you're doing what you can. They're in good hands with you by their side. I'm here whenever you need to talk.", "That must be so worrying. When someone we love is sick, our minds can race. Take a moment to breathe. Stay calm—your presence and care matter. You're not alone in this. I'm here to listen. How are you holding up?"],
   pet_sick: ["I'm so sorry your cat or dog is sick. Take a deep breath. That's scary—pets are family. Try to stay calm. Have you been able to see a vet and get medicine? That would be the best step. I'm here to listen. Breathe; we'll get through this together.", "I hear you. When our pet is unwell, it's natural to feel scared. Try to relax your mind—you're doing what you can. Have you gone to the vet or gotten medicine for them? I'm here for you. Your feelings are valid.", "That must be so worrying. A sick pet can make us feel helpless. Take a breath. Try to stay calm. Have you taken them to the vet or got medicine? That can help a lot. I'm here whenever you need to talk."],
   pet_sick_advice: ["For a sick pet, the best steps are: (1) Take them to a vet if you haven't yet—they can diagnose and prescribe medicine. (2) Give any medicine the vet prescribed, exactly as directed. (3) Keep them comfortable—quiet place, water, rest. (4) Watch for changes. I'm here if you need to talk.", "Here's what you can do: First, see a vet—they'll tell you what medicine or treatment your pet needs. Follow their advice on feeding and medicine. Keep your pet warm and calm. You're doing your best—I'm here for you.", "When your pet is sick: take them to the vet, give medicine as the vet prescribes, keep them in a calm place with water, and monitor them. Don't give human medicine unless the vet says so. You're doing what you can. I'm here to listen."],
-  pet_sick_update: ["That's great that you went to the vet and got medicine. You're doing the right thing for your cat. Give the medicine as the vet prescribed, keep them comfortable, and they should start feeling better. I'm glad you took care of them. How are they doing now?", "Good job taking them to the vet and getting medicine. Follow the vet's instructions—give the medicine on time and keep your pet restful. You're a great pet parent. Let me know if you need to talk.", "I'm glad you got them to the vet and have medicine. That's the best thing you could do. Keep giving the medicine as directed and watch how they respond. Your cat is in good hands with you. How are you both holding up?"],
+  pet_sick_update: ["That's great that you went to the vet and got medicine. You're doing the right thing for your cat. Give the medicine as the vet prescribed, keep them comfortable, and they should start feeling better. I'm glad you took care of them. How are they doing now?", "Good job taking them to the vet and getting medicine. Follow the vet's instructions—give the medicine on time and keep your pet restful. You're a great pet parent. Let me know if you need to talk.", "I'm glad you got them to the vet and have medicine. That's the best thing you could do. Keep giving the medicine as directed and watch how they respond. You're doing your best."],
   health: ["Health concerns can be scary. I'm here to listen. How have you been feeling? Would talking about it help?", "I hear you. Taking care of your body and mind matters. What would feel supportive right now?", "That sounds draining. Be gentle with yourself. Is there anything that usually helps you feel a bit better?"],
   money: ["Financial stress is heavy. You're not alone. What would help—talking through it, or brainstorming one small step?", "I hear you. Money worries can affect everything. It's okay to feel overwhelmed. What's on your mind most?", "That sounds really tough. Would it help to talk about what's stressing you, or just to be heard?"],
   pet: ["I'm sorry to hear that. Losing a pet or having them go missing is really hard. Take a deep breath. Try to relax your mind. How long has it been? Would it help to talk? I'm here. You're not alone.", "That must be so worrying. Pets are family. Try to stay calm. Have you been able to search or put up flyers? I'm here to listen. Breathe—things will work out. You're doing your best.", "I hear you. That's a difficult situation. Take a moment to breathe. Would you like to talk about what happened? I'm here for you. Try to relax—you're not alone."],
@@ -251,15 +251,29 @@ function getDatasetResponse(userInput, emotion) {
 }
 
 /**
- * Priority: crisis → greeting → topic → emotion → IEMOCAP (only relevant) → default.
- * IEMOCAP used only when strong match (0.55+) and response passes suitability filter.
+ * Build context from recent user messages for better topic inference (e.g. "what to do for my pet" + previous "my cat is sick").
  */
-function getFallbackResponse(text, emotion) {
+function getContextText(history) {
+  if (!Array.isArray(history) || history.length === 0) return '';
+  const userTexts = history
+    .filter((m) => m.role === 'user' && (m.text || m.content))
+    .slice(-2)
+    .map((m) => (m.text || m.content || '').trim())
+    .filter(Boolean);
+  return userTexts.join(' ');
+}
+
+/**
+ * Priority: crisis → greeting → topic (use context) → emotion → IEMOCAP → default.
+ * Uses conversation history so follow-ups like "what to do for my pet?" get sick-pet context.
+ */
+function getFallbackResponse(text, emotion, history = []) {
   const trimmed = (text || '').trim();
   if (!trimmed) return "I'm here when you're ready. You can type anything you'd like to share.";
   if (isCrisisMessage(text)) return CRISIS_RESPONSES[Math.floor(Math.random() * CRISIS_RESPONSES.length)];
   if (isGreeting(text)) return GREETING_RESPONSES[Math.floor(Math.random() * GREETING_RESPONSES.length)];
-  const topic = getTopicFromText(trimmed);
+  const contextText = getContextText(history) + ' ' + trimmed;
+  const topic = getTopicFromText(trimmed) || getTopicFromText(contextText);
   if (topic && TOPIC_RESPONSES[topic]) return TOPIC_RESPONSES[topic][Math.floor(Math.random() * TOPIC_RESPONSES[topic].length)];
   if (emotion && EMOTION_RESPONSES[emotion]) return EMOTION_RESPONSES[emotion][Math.floor(Math.random() * EMOTION_RESPONSES[emotion].length)];
   const fromDataset = getDatasetResponse(trimmed, emotion);
@@ -303,7 +317,7 @@ app.post('/api/chat', async (req, res) => {
   }
 
   if (!apiKey) {
-    const fallback = getFallbackResponse(text, emotion);
+    const fallback = getFallbackResponse(text, emotion, history);
     return res.json({ reply: fallback, emotion: emotion || undefined, fallback: true });
   }
 
@@ -332,14 +346,14 @@ app.post('/api/chat', async (req, res) => {
 
     const reply = completion.choices[0]?.message?.content?.trim();
     if (!reply) {
-      const fallback = getFallbackResponse(text, emotion);
+      const fallback = getFallbackResponse(text, emotion, history);
       return res.json({ reply: fallback, emotion: emotion || undefined, fallback: true });
     }
 
     res.json({ reply, emotion: emotion || undefined });
   } catch (err) {
     console.warn('OpenAI error (using fallback):', err.message);
-    const fallback = getFallbackResponse(text, emotion);
+    const fallback = getFallbackResponse(text, emotion, history);
     res.json({ reply: fallback, emotion: emotion || undefined, fallback: true });
   }
 });
