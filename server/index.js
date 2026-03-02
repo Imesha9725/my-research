@@ -196,6 +196,23 @@ const GREETING_RESPONSES = [
   "Hey there! I'm here for you. How are you feeling today?",
 ];
 
+function isThanks(text) {
+  if (!text || typeof text !== 'string') return false;
+  const lower = text.toLowerCase().trim();
+  const thanksPatterns = /^(thank(s| you)?|thanks a lot|thank you so much|many thanks|really appreciate|i appreciate|grateful|that helps|so helpful|bye|goodbye|take care)[\s,!.]*$/i;
+  if (thanksPatterns.test(lower)) return true;
+  const short = lower.replace(/[^\w\s]/g, '').trim();
+  return /^(thank you|thanks|bye|goodbye|take care)$/.test(short) || (short.split(/\s+/).length <= 5 && /\b(thanks|thank|appreciate|grateful|helpful)\b/i.test(short));
+}
+
+const THANKS_RESPONSES = [
+  "It was truly my pleasure to be here with you. Remember, you're never alone—I'm here whenever you need to talk. Take care of yourself, and reach out anytime.",
+  "Thank you for trusting me with your feelings. That takes courage. I'm always here when you need support. Wishing you peace and kindness. Take care.",
+  "I'm so glad I could be here for you. You matter, and you deserve to feel supported. Come back anytime—I'll be here. Take gentle care of yourself.",
+  "It means a lot that you shared with me. You're not alone in this journey. Whenever you need a listening ear, I'm here. Be kind to yourself.",
+  "Thank you for chatting with me. I hope our conversation helped a little. Remember, reaching out is a strength. I'm here whenever you need. Take care.",
+];
+
 // IEMOCAP: only use responses suitable for mental health support (exclude drama/bureaucracy scripts)
 const IEMOCAP_BLOCKLIST = ['brandy', 'bored stiff', 'day care', 'supervisor', 'direct line', 'rigmarole', 'z.x.four', 'passport', 'birth certificate', 'bank account', 'overdue fee', 'statement in a few days', 'put that into the computer', 'we keep it on file', 'fill out', 'this form', 'different form of id', 'get in this line', 'do you have your forms', 'wallet was stolen', 'try to do that for you', 'i can try to do'];
 
@@ -272,6 +289,7 @@ function getFallbackResponse(text, emotion, history = []) {
   if (!trimmed) return "I'm here when you're ready. You can type anything you'd like to share.";
   if (isCrisisMessage(text)) return CRISIS_RESPONSES[Math.floor(Math.random() * CRISIS_RESPONSES.length)];
   if (isGreeting(text)) return GREETING_RESPONSES[Math.floor(Math.random() * GREETING_RESPONSES.length)];
+  if (isThanks(text)) return THANKS_RESPONSES[Math.floor(Math.random() * THANKS_RESPONSES.length)];
   const contextText = getContextText(history) + ' ' + trimmed;
   const topic = getTopicFromText(trimmed) || getTopicFromText(contextText);
   if (topic && TOPIC_RESPONSES[topic]) return TOPIC_RESPONSES[topic][Math.floor(Math.random() * TOPIC_RESPONSES[topic].length)];
@@ -314,6 +332,11 @@ app.post('/api/chat', async (req, res) => {
   }
   if (emotion == null) {
     emotion = getEmotionFromText(text);
+  }
+
+  if (isThanks(text)) {
+    const thanksReply = THANKS_RESPONSES[Math.floor(Math.random() * THANKS_RESPONSES.length)];
+    return res.json({ reply: thanksReply, emotion: emotion || undefined });
   }
 
   if (!apiKey) {
