@@ -24,6 +24,7 @@ function Chat() {
   const mediaRecorderRef = useRef(null);
   const streamRef = useRef(null);
   const lastRecordedBlobRef = useRef(null);
+  const audioReadyRef = useRef(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -90,9 +91,17 @@ function Chat() {
       streamRef.current = stream;
       const chunks = [];
       const mr = new MediaRecorder(stream, { mimeType: MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/ogg' });
+      let resolveAudio;
+      audioReadyRef.current = new Promise((r) => { resolveAudio = r; });
       mr.ondataavailable = (e) => e.data.size > 0 && chunks.push(e.data);
       mr.onstop = () => {
-        if (chunks.length > 0) lastRecordedBlobRef.current = new Blob(chunks, { type: mr.mimeType });
+        if (chunks.length > 0) {
+          const blob = new Blob(chunks, { type: mr.mimeType });
+          lastRecordedBlobRef.current = blob;
+          resolveAudio(blob);
+        } else {
+          resolveAudio(null);
+        }
       };
       mr.start(200);
       mediaRecorderRef.current = mr;
@@ -110,6 +119,16 @@ function Chat() {
     const text = input.trim();
     if (!text || isTyping) return;
 
+    if (isListening) {
+      recognitionRef.current?.stop();
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+        mediaRecorderRef.current.stop();
+      }
+      streamRef.current?.getTracks?.().forEach((t) => t.stop());
+      streamRef.current = null;
+      setIsListening(false);
+    }
+
     const userMsg = {
       id: `user-${Date.now()}`,
       role: 'user',
@@ -125,7 +144,12 @@ function Chat() {
       .map((m) => ({ role: m.role, text: m.text }));
 
     let audioBase64 = null;
-    const blob = lastRecordedBlobRef.current;
+    let blob = lastRecordedBlobRef.current;
+    if (!blob && audioReadyRef.current) {
+      try {
+        blob = await Promise.race([audioReadyRef.current, new Promise((r) => setTimeout(() => r(null), 1500))]);
+      } catch (_) {}
+    }
     if (blob) {
       try {
         audioBase64 = await new Promise((resolve, reject) => {
