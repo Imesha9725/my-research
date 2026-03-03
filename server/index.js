@@ -97,12 +97,16 @@ const TOPIC_KEYWORDS = [
   { keywords: ['failed', 'didnt pass', "didn't pass", 'bad grade', 'failed exam', 'flunked'], topic: 'academic_failure' },
   { keywords: ['exam', 'exams', 'test', 'tests', 'study', 'studying', 'assignment', 'project', 'grade', 'marks', 'university', 'college', 'school'], topic: 'exam' },
   { keywords: ['work', 'job', 'office', 'boss', 'colleague', 'career', 'deadline', 'meeting', 'salary', 'promotion'], topic: 'work' },
-  { keywords: ['going to other country', 'going to another country', 'going abroad', 'going overseas', 'going away', 'leaving for', 'went to', 'moved to another', 'flying to', 'flying overseas', 'moving abroad', 'moving overseas', 'i am flying', 'im flying', 'i will fly', 'father going', 'mother going', 'mom going', 'dad going', 'brother going', 'sister going', 'husband going', 'wife going', 'son going', 'daughter going', 'parent going', 'spouse going', 'partner going', 'family member going', 'loved one going'], topic: 'family_separation' },
+  { keywords: ['going to other country', 'going to another country', 'going abroad', 'going overseas', 'going away', 'leaving for', 'went to another', 'went to other country', 'moved to another', 'flying to', 'flying overseas', 'moving abroad', 'moving overseas', 'i am flying', 'im flying', 'i will fly', 'father going', 'mother going', 'mom going', 'dad going', 'brother going', 'sister going', 'husband going', 'wife going', 'son going', 'daughter going', 'parent going', 'spouse going', 'partner going', 'family member going', 'loved one going'], topic: 'family_separation' },
   { keywords: ['family', 'parents', 'mother', 'father', 'mom', 'dad', 'sibling', 'brother', 'sister', 'child', 'children', 'kid', 'relationship with family'], topic: 'family' },
   { keywords: ['boyfriend', 'girlfriend', 'partner', 'relationship', 'breakup', 'divorce', 'dating', 'love'], topic: 'relationship' },
+  { keywords: ['father is sick', 'mother is sick', 'father sick', 'mother sick', 'parent sick', 'parent is sick', 'sibling sick', 'spouse sick', 'husband sick', 'wife sick', 'child sick', 'family member sick', 'someone close is sick', 'loved one sick'], topic: 'someone_sick' },
+  { keywords: ['cat is sick', 'dog is sick', 'pet is sick', 'cat sick', 'dog sick', 'my cat sick', 'my dog sick', 'pet ill', 'cat ill', 'dog ill'], topic: 'pet_sick' },
+  { keywords: ['what to do for my pet', 'what i have to do for my pet', 'do for my pet', 'how to help my pet', 'what should i do for my pet', 'give medicine', 'what can i do for my pet'], topic: 'pet_sick_advice' },
+  { keywords: ['went to vet', 'went to the vet', 'went near to vet', 'got medicine', 'got the medicine', 'got medicine for', 'got the medicine for', 'medicine for my cat', 'medicine for my dog', 'medicine for my pet', 'took to vet', 'saw the vet'], topic: 'pet_sick_update' },
+  { keywords: ['pet left', 'pet gone', 'pet missing', 'pet ran away', 'lost my pet', 'cat left', 'dog left', 'pet die', 'pet died', 'cat died', 'dog died', 'cat', 'dog', 'pet', 'animal', 'puppy', 'kitten'], topic: 'pet' },
   { keywords: ['health', 'sick', 'ill', 'pain', 'doctor', 'hospital', 'sleep', 'insomnia', 'tired', 'exhausted'], topic: 'health' },
   { keywords: ['money', 'financial', 'debt', 'bills', 'salary', 'poor', 'afford'], topic: 'money' },
-  { keywords: ['cat', 'dog', 'pet', 'animal', 'puppy', 'kitten'], topic: 'pet' },
   { keywords: ['lost someone', 'passed away', 'died', 'death', 'grief', 'mourning', 'bereavement', 'left the world', 'left us', 'no longer with', 'gone forever', 'father died', 'mother died', 'mom died', 'dad died', 'brother died', 'sister died', 'spouse died', 'husband died', 'wife died', 'child died', 'friend died', 'close person died', 'family member died'], topic: 'grief' },
   { keywords: ['not good enough', 'worthless', 'failure', 'useless', 'stupid', "can't do anything", 'cant do anything'], topic: 'self_doubt' },
   { keywords: ["don't know", 'dont know', 'something wrong', 'something off', 'something feels', 'cant explain', 'confused about feelings'], topic: 'vague_distress' },
@@ -124,13 +128,17 @@ const TOPIC_KEYWORDS = [
 const TOPIC_RESPONSES = {
   exam: ["Exams can be really overwhelming. You're not alone in feeling this way. What would help—breaking it into smaller parts, or talking through what's stressing you most?", "I hear you. Study pressure is real. Remember, your worth isn't measured by one exam. What subject or part feels hardest right now?", "That sounds tough. It might help to take short breaks and be kind to yourself. Would you like to talk about what's making it feel so heavy?"],
   work: ["Work stress can drain us. You're doing your best. What would help—venting about it, or thinking of one small thing you could change?", "I understand. Job pressure is real. Is there a specific situation that's weighing on you most?", "That sounds exhausting. It's okay to need a break. What would give you some relief right now—talking it out, or stepping back for a moment?"],
-  family_separation: ["I understand—it's really hard when your father, mother, or any family member goes overseas, or when you're the one flying to another country. Your sadness is valid. Whether they're leaving or you are, you'll see each other again after work or studies are done. How long will the separation be? I'm here to listen.", "I hear you. Saying goodbye—whether your parent, sibling, or spouse is going, or you're flying abroad yourself—is so difficult. It's okay to feel sad. You'll be together again. Would you like to talk about how you're feeling? I'm here for you.", "That must be really tough. Whether someone close is leaving or you're moving overseas, the separation is painful. Your feelings matter. You'll reunite—and until then, we can chat anytime you need a friend. How are you coping?"],
+  family_separation: ["I understand—it's really hard when someone you love leaves. Take a deep breath. Your feelings are valid. Whether they're going overseas or you are, you'll see each other again. Try to stay calm—you're not alone. I'm here to listen. How long will the separation be?", "I hear you. Saying goodbye is painful. Remember to breathe. It's okay to feel sad. They will come back, and you'll be together again. Try to relax your mind—things will be okay. Would you like to talk? I'm here for you.", "That must be tough. When someone leaves, it hurts. Your feelings matter. Take a moment to breathe. You'll reunite—until then, we can chat anytime. You're going to be okay. How are you holding up?"],
   family: ["Family issues can be really painful. I'm here to listen. Would you like to share what's going on?", "I hear you. Family dynamics are complex. You're allowed to feel how you feel. What's the hardest part right now?", "That sounds difficult. It's brave of you to reach out. What would feel helpful—talking through it, or just being heard?"],
   relationship: ["Relationship struggles hurt. I'm here for you. Would you like to talk about what's going on?", "I hear you. It's okay to feel upset. What would help—venting, or thinking about what you need from this situation?", "That sounds really tough. You're not alone. What would feel supportive right now?"],
+  someone_sick: ["I'm so sorry to hear someone close to you is sick. Take a deep breath. It's natural to feel scared and worried. Try to stay calm—your love and care mean a lot to them. You're not alone. I'm here. Would you like to talk about it? Breathe slowly; things will be okay.", "I hear you. When a family member or loved one is ill, it's really hard. Your feelings are valid. Try to relax your mind—you're doing what you can. They're in good hands with you by their side. I'm here whenever you need to talk.", "That must be so worrying. When someone we love is sick, our minds can race. Take a moment to breathe. Stay calm—your presence and care matter. You're not alone in this. I'm here to listen. How are you holding up?"],
+  pet_sick: ["I'm so sorry your cat or dog is sick. Take a deep breath. That's scary—pets are family. Try to stay calm. Have you been able to see a vet and get medicine? That would be the best step. I'm here to listen. Breathe; we'll get through this together.", "I hear you. When our pet is unwell, it's natural to feel scared. Try to relax your mind—you're doing what you can. Have you gone to the vet or gotten medicine for them? I'm here for you. Your feelings are valid.", "That must be so worrying. A sick pet can make us feel helpless. Take a breath. Try to stay calm. Have you taken them to the vet or got medicine? That can help a lot. I'm here whenever you need to talk."],
+  pet_sick_advice: ["For a sick pet, the best steps are: (1) Take them to a vet if you haven't yet—they can diagnose and prescribe medicine. (2) Give any medicine the vet prescribed, exactly as directed. (3) Keep them comfortable—quiet place, water, rest. (4) Watch for changes. I'm here if you need to talk.", "Here's what you can do: First, see a vet—they'll tell you what medicine or treatment your pet needs. Follow their advice on feeding and medicine. Keep your pet warm and calm. You're doing your best—I'm here for you.", "When your pet is sick: take them to the vet, give medicine as the vet prescribes, keep them in a calm place with water, and monitor them. Don't give human medicine unless the vet says so. You're doing what you can. I'm here to listen."],
+  pet_sick_update: ["That's great that you went to the vet and got medicine. You're doing the right thing for your cat. Give the medicine as the vet prescribed, keep them comfortable, and they should start feeling better. I'm glad you took care of them. How are they doing now?", "Good job taking them to the vet and getting medicine. Follow the vet's instructions—give the medicine on time and keep your pet restful. You're a great pet parent. Let me know if you need to talk.", "I'm glad you got them to the vet and have medicine. That's the best thing you could do. Keep giving the medicine as directed and watch how they respond. You're doing your best."],
   health: ["Health concerns can be scary. I'm here to listen. How have you been feeling? Would talking about it help?", "I hear you. Taking care of your body and mind matters. What would feel supportive right now?", "That sounds draining. Be gentle with yourself. Is there anything that usually helps you feel a bit better?"],
   money: ["Financial stress is heavy. You're not alone. What would help—talking through it, or brainstorming one small step?", "I hear you. Money worries can affect everything. It's okay to feel overwhelmed. What's on your mind most?", "That sounds really tough. Would it help to talk about what's stressing you, or just to be heard?"],
-  pet: ["I'm sorry to hear that. Losing a pet or having them go missing is really hard. How long has it been? Would it help to talk about it?", "That must be so worrying. Pets are family. Have you been able to search or put up flyers? I'm here to listen.", "I hear you. That's a difficult situation. Would you like to talk about what happened, or what you've tried so far?"],
-  grief: ["I'm so sorry. Losing your father, mother, family member, or anyone close—when they leave this world—is one of the hardest things. Your sadness is valid. There's no right way to grieve. I'm here to listen. Would you like to talk about them?", "I hear you. When someone we love passes away, the pain can feel unbearable. Whether it's your parent, sibling, spouse, or a close friend—your feelings matter. Take the time you need. I'm here for you.", "That must be so painful. Losing someone who has left the world is devastating. You're allowed to feel sad, angry, lost—whatever you feel. Would it help to talk about them or how you're coping? I'm here."],
+  pet: ["I'm sorry to hear that. Losing a pet or having them go missing is really hard. Take a deep breath. Try to relax your mind. How long has it been? Would it help to talk? I'm here. You're not alone.", "That must be so worrying. Pets are family. Try to stay calm. Have you been able to search or put up flyers? I'm here to listen. Breathe—things will work out. You're doing your best.", "I hear you. That's a difficult situation. Take a moment to breathe. Would you like to talk about what happened? I'm here for you. Try to relax—you're not alone."],
+  grief: ["I'm so sorry. Losing someone who left this world is one of the hardest things. Take a deep breath. Your sadness is valid. Try to relax your mind—there's no right way to grieve. You're not alone. I'm here. Would you like to talk about them?", "I hear you. When someone we love passes away, the pain can feel unbearable. Breathe slowly. Your feelings matter. Take the time you need. Try to stay calm—you will get through this. I'm here for you.", "That must be so painful. Losing someone is devastating. Take a moment to breathe. You're allowed to feel whatever you feel. Try to relax your mind—you're not alone. I'm here whenever you need to talk."],
   self_doubt: ["I hear you. Those thoughts can be really loud. You're more capable than you feel right now. Would you like to talk about what's making you feel this way?", "Feeling like you're not good enough is painful—and it's not the truth. What would it mean to be a little kinder to yourself today?", "You're not a failure. Everyone struggles sometimes. What's one small thing you've done recently that you're proud of?"],
   vague_distress: ["It's okay if you can't put it into words yet. Sometimes we feel off before we know why. I'm here—take your time. What's the first thing that comes to mind?", "That fuzzy, confused feeling is valid. You don't have to understand everything to be heard. Want to try describing it in any way that feels right?", "I'm listening. Even 'something feels wrong' is enough to start. What's been going on lately?"],
   guilt: ["Guilt is heavy. You're human, and everyone makes mistakes. Would it help to talk about what happened?", "I hear you. Carrying guilt can be exhausting. What would it mean to forgive yourself a little—or at least talk it through?", "That sounds really hard. Guilt often means we care. Would you like to share what's on your mind?"],
@@ -188,6 +196,23 @@ const GREETING_RESPONSES = [
   "Hey there! I'm here for you. How are you feeling today?",
 ];
 
+function isThanks(text) {
+  if (!text || typeof text !== 'string') return false;
+  const lower = text.toLowerCase().trim();
+  const thanksPatterns = /^(thank(s| you)?|thanks a lot|thank you so much|many thanks|really appreciate|i appreciate|grateful|that helps|so helpful|bye|goodbye|take care)[\s,!.]*$/i;
+  if (thanksPatterns.test(lower)) return true;
+  const short = lower.replace(/[^\w\s]/g, '').trim();
+  return /^(thank you|thanks|bye|goodbye|take care)$/.test(short) || (short.split(/\s+/).length <= 5 && /\b(thanks|thank|appreciate|grateful|helpful)\b/i.test(short));
+}
+
+const THANKS_RESPONSES = [
+  "It was truly my pleasure to be here with you. Remember, you're never alone—I'm here whenever you need to talk. Take care of yourself, and reach out anytime.",
+  "Thank you for trusting me with your feelings. That takes courage. I'm always here when you need support. Wishing you peace and kindness. Take care.",
+  "I'm so glad I could be here for you. You matter, and you deserve to feel supported. Come back anytime—I'll be here. Take gentle care of yourself.",
+  "It means a lot that you shared with me. You're not alone in this journey. Whenever you need a listening ear, I'm here. Be kind to yourself.",
+  "Thank you for chatting with me. I hope our conversation helped a little. Remember, reaching out is a strength. I'm here whenever you need. Take care.",
+];
+
 // IEMOCAP: only use responses suitable for mental health support (exclude drama/bureaucracy scripts)
 const IEMOCAP_BLOCKLIST = ['brandy', 'bored stiff', 'day care', 'supervisor', 'direct line', 'rigmarole', 'z.x.four', 'passport', 'birth certificate', 'bank account', 'overdue fee', 'statement in a few days', 'put that into the computer', 'we keep it on file', 'fill out', 'this form', 'different form of id', 'get in this line', 'do you have your forms', 'wallet was stolen', 'try to do that for you', 'i can try to do'];
 
@@ -243,15 +268,30 @@ function getDatasetResponse(userInput, emotion) {
 }
 
 /**
- * Priority: crisis → greeting → topic → emotion → IEMOCAP (only relevant) → default.
- * IEMOCAP used only when strong match (0.55+) and response passes suitability filter.
+ * Build context from recent user messages for better topic inference (e.g. "what to do for my pet" + previous "my cat is sick").
  */
-function getFallbackResponse(text, emotion) {
+function getContextText(history) {
+  if (!Array.isArray(history) || history.length === 0) return '';
+  const userTexts = history
+    .filter((m) => m.role === 'user' && (m.text || m.content))
+    .slice(-2)
+    .map((m) => (m.text || m.content || '').trim())
+    .filter(Boolean);
+  return userTexts.join(' ');
+}
+
+/**
+ * Priority: crisis → greeting → topic (use context) → emotion → IEMOCAP → default.
+ * Uses conversation history so follow-ups like "what to do for my pet?" get sick-pet context.
+ */
+function getFallbackResponse(text, emotion, history = []) {
   const trimmed = (text || '').trim();
   if (!trimmed) return "I'm here when you're ready. You can type anything you'd like to share.";
   if (isCrisisMessage(text)) return CRISIS_RESPONSES[Math.floor(Math.random() * CRISIS_RESPONSES.length)];
   if (isGreeting(text)) return GREETING_RESPONSES[Math.floor(Math.random() * GREETING_RESPONSES.length)];
-  const topic = getTopicFromText(trimmed);
+  if (isThanks(text)) return THANKS_RESPONSES[Math.floor(Math.random() * THANKS_RESPONSES.length)];
+  const contextText = getContextText(history) + ' ' + trimmed;
+  const topic = getTopicFromText(trimmed) || getTopicFromText(contextText);
   if (topic && TOPIC_RESPONSES[topic]) return TOPIC_RESPONSES[topic][Math.floor(Math.random() * TOPIC_RESPONSES[topic].length)];
   if (emotion && EMOTION_RESPONSES[emotion]) return EMOTION_RESPONSES[emotion][Math.floor(Math.random() * EMOTION_RESPONSES[emotion].length)];
   const fromDataset = getDatasetResponse(trimmed, emotion);
@@ -294,8 +334,13 @@ app.post('/api/chat', async (req, res) => {
     emotion = getEmotionFromText(text);
   }
 
+  if (isThanks(text)) {
+    const thanksReply = THANKS_RESPONSES[Math.floor(Math.random() * THANKS_RESPONSES.length)];
+    return res.json({ reply: thanksReply, emotion: emotion || undefined });
+  }
+
   if (!apiKey) {
-    const fallback = getFallbackResponse(text, emotion);
+    const fallback = getFallbackResponse(text, emotion, history);
     return res.json({ reply: fallback, emotion: emotion || undefined, fallback: true });
   }
 
@@ -324,14 +369,14 @@ app.post('/api/chat', async (req, res) => {
 
     const reply = completion.choices[0]?.message?.content?.trim();
     if (!reply) {
-      const fallback = getFallbackResponse(text, emotion);
+      const fallback = getFallbackResponse(text, emotion, history);
       return res.json({ reply: fallback, emotion: emotion || undefined, fallback: true });
     }
 
     res.json({ reply, emotion: emotion || undefined });
   } catch (err) {
     console.warn('OpenAI error (using fallback):', err.message);
-    const fallback = getFallbackResponse(text, emotion);
+    const fallback = getFallbackResponse(text, emotion, history);
     res.json({ reply: fallback, emotion: emotion || undefined, fallback: true });
   }
 });
