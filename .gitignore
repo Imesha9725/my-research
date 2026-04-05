@@ -19,6 +19,7 @@
 .env.test.local
 .env.production.local
 server/.env
+server/data/
 ml/models/*.joblib
 
 npm-debug.log*

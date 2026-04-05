@@ -12,7 +12,7 @@ const WELCOME_MESSAGE = {
   timestamp: new Date(),
 };
 
-function Chat() {
+function Chat({ authToken, userEmail, onLogout }) {
   const [messages, setMessages] = useState([WELCOME_MESSAGE]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -33,6 +33,35 @@ function Chat() {
   useEffect(() => {
     scrollToBottom();
   }, [messages, isTyping]);
+
+  const apiUrl = process.env.REACT_APP_CHAT_API_URL || '';
+
+  useEffect(() => {
+    if (!apiUrl || !authToken) return undefined;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`${apiUrl}/api/chat/history`, {
+          headers: { Authorization: `Bearer ${authToken}` },
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (cancelled) return;
+        const loaded = (data.messages || []).map((m) => ({
+          id: `db-${m.id}`,
+          role: m.role,
+          text: m.text,
+          timestamp: m.createdAt ? new Date(m.createdAt) : new Date(),
+        }));
+        setMessages(loaded.length === 0 ? [WELCOME_MESSAGE] : loaded);
+      } catch (_) {
+        /* keep welcome */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [apiUrl, authToken]);
 
   useEffect(() => {
     if (!SpeechRecognitionAPI) return;
@@ -112,8 +141,6 @@ function Chat() {
     }
   };
 
-  const apiUrl = process.env.REACT_APP_CHAT_API_URL || '';
-
   const sendMessage = async (e) => {
     e.preventDefault();
     const text = input.trim();
@@ -139,9 +166,11 @@ function Chat() {
     setInput('');
     setIsTyping(true);
 
-    const history = messages
-      .filter((m) => m.role === 'user' || m.role === 'bot')
-      .map((m) => ({ role: m.role, text: m.text }));
+    const historyForApi = authToken
+      ? []
+      : messages
+          .filter((m) => m.role === 'user' || m.role === 'bot')
+          .map((m) => ({ role: m.role, text: m.text }));
 
     let audioBase64 = null;
     let blob = lastRecordedBlobRef.current;
@@ -166,15 +195,18 @@ function Chat() {
       lastRecordedBlobRef.current = null;
     }
 
-    const payload = { message: text, history };
+    const payload = { message: text, history: historyForApi };
     if (audioBase64) payload.audioBase64 = audioBase64;
+
+    const chatHeaders = { 'Content-Type': 'application/json' };
+    if (authToken) chatHeaders.Authorization = `Bearer ${authToken}`;
 
     let botText;
     if (apiUrl) {
       try {
         const res = await fetch(`${apiUrl}/api/chat`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: chatHeaders,
           body: JSON.stringify(payload),
         });
         const data = await res.json();
@@ -216,7 +248,19 @@ function Chat() {
             <p>Emotion-aware chatbot · Text & voice</p>
           </div>
         </div>
-        <span className="chat-header-badge">Research · MCS 3204</span>
+        <div className="chat-header-actions">
+          {userEmail && (
+            <span className="chat-header-user" title={userEmail}>
+              {userEmail.split('@')[0]}
+            </span>
+          )}
+          {onLogout && (
+            <button type="button" className="chat-header-logout" onClick={onLogout}>
+              Log out
+            </button>
+          )}
+          <span className="chat-header-badge">Research · MCS 3204</span>
+        </div>
       </div>
 
       <div className="chat-messages">
