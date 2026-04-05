@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Chat from './components/Chat';
+import Auth from './components/Auth';
 import './App.css';
 
 const NAV_SECTIONS = [
@@ -43,6 +44,31 @@ const COMPARISON_ROWS = [
 function App() {
   const [view, setView] = useState('chat');
   const [navOpen, setNavOpen] = useState(false);
+  const apiUrl = process.env.REACT_APP_CHAT_API_URL || '';
+  const [auth, setAuth] = useState(() => {
+    try {
+      const t = localStorage.getItem('chat_token');
+      const e = localStorage.getItem('chat_email');
+      return t ? { token: t, email: e || '' } : null;
+    } catch {
+      return null;
+    }
+  });
+  const [guestMode, setGuestMode] = useState(false);
+
+  const handleLoggedIn = (token, email) => {
+    localStorage.setItem('chat_token', token);
+    localStorage.setItem('chat_email', email);
+    setAuth({ token, email });
+    setGuestMode(false);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('chat_token');
+    localStorage.removeItem('chat_email');
+    setAuth(null);
+    setGuestMode(false);
+  };
 
   const scrollTo = (id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
@@ -50,9 +76,23 @@ function App() {
   };
 
   if (view === 'chat') {
+    const showAuth = Boolean(apiUrl) && !auth && !guestMode;
     return (
       <div className="app app--chat">
-        <Chat />
+        {showAuth ? (
+          <Auth
+            apiUrl={apiUrl}
+            onLoggedIn={handleLoggedIn}
+            onContinueGuest={() => setGuestMode(true)}
+          />
+        ) : (
+          <Chat
+            key={auth?.token || (guestMode ? 'guest' : 'offline')}
+            authToken={auth?.token}
+            userEmail={auth?.email}
+            onLogout={auth ? handleLogout : undefined}
+          />
+        )}
       </div>
     );
   }

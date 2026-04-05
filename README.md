@@ -63,9 +63,12 @@ This creates `ml/models/dataset_responses.json`. The chatbot will use these data
 ```
 OPENAI_API_KEY=sk-your-openai-key-here
 EMOTION_API_URL=http://localhost:5002
+JWT_SECRET=use-a-long-random-string-in-production
 ```
 
-Replace `sk-your-openai-key-here` with your real OpenAI API key from https://platform.openai.com/api-keys.
+Replace `sk-your-openai-key-here` with your real OpenAI API key from https://platform.openai.com/api-keys. Set **`JWT_SECRET`** to a long random string for login tokens (optional for local dev; the server falls back to a dev default with a warning).
+
+**Accounts & chat history:** With `REACT_APP_CHAT_API_URL` set, the app shows **Register / Log in**. Messages are stored in **`server/data/chat.db`** (SQLite), one row per user and bot turn, including **emotion** on user messages for emotional memory. Use **Continue without an account** for guest mode (no saving). The database file is gitignored.
 
 **Project root `.env`** – create this file in `D:\My Research Project\my-research\`:
 
