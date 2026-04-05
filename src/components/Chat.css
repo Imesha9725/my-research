@@ -69,6 +69,41 @@
   font-weight: 500;
 }
 
+.chat-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.chat-header-user {
+  font-size: 0.72rem;
+  font-weight: 600;
+  max-width: 7rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0.95;
+}
+
+.chat-header-logout {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.35rem 0.55rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  cursor: pointer;
+}
+
+.chat-header-logout:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
 .chat-header-badge {
   font-size: 0.7rem;
   font-weight: 600;

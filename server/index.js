@@ -11,11 +11,37 @@ import { fileURLToPath } from 'url';
 import express from 'express';
 import cors from 'cors';
 import OpenAI from 'openai';
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+import {
+  findUserByEmail,
+  createUser,
+  insertMessage,
+  getRecentHistory,
+  getAllMessagesForUser,
+} from './db.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DATASET_PATH = path.resolve(__dirname, '../ml/models/dataset_responses.json');
 const app = express();
 const PORT = process.env.PORT || 5001;
+const JWT_SECRET = process.env.JWT_SECRET || 'dev-only-change-JWT_SECRET-in-production';
+
+function signToken(user) {
+  return jwt.sign({ sub: String(user.id), email: user.email }, JWT_SECRET, { expiresIn: '30d' });
+}
+
+function getUserIdFromReq(req) {
+  const h = req.headers.authorization;
+  if (!h || typeof h !== 'string' || !h.startsWith('Bearer ')) return null;
+  try {
+    const payload = jwt.verify(h.slice(7), JWT_SECRET);
+    const id = Number(payload.sub);
+    return Number.isFinite(id) && id > 0 ? id : null;
+  } catch {
+    return null;
+  }
+}
 
 app.use(cors({ origin: true }));
 app.use(express.json());
@@ -316,15 +342,7 @@ async function getEmotionFromAPI(text, audioBase64) {
   }
 }
 
-// ----- Chat endpoint -----
-app.post('/api/chat', async (req, res) => {
-  const { message, history = [], audioBase64 } = req.body;
-  const text = typeof message === 'string' ? message.trim() : '';
-
-  if (!text) {
-    return res.status(400).json({ error: 'message is required' });
-  }
-
+async function computeChatReply(text, history, audioBase64) {
   const apiKey = process.env.OPENAI_API_KEY;
   let emotion = null;
   if (EMOTION_API_URL && (text || audioBase64)) {
@@ -336,18 +354,17 @@ app.post('/api/chat', async (req, res) => {
 
   if (isThanks(text)) {
     const thanksReply = THANKS_RESPONSES[Math.floor(Math.random() * THANKS_RESPONSES.length)];
-    return res.json({ reply: thanksReply, emotion: emotion || undefined });
+    return { reply: thanksReply, emotion: emotion || undefined, fallback: false };
   }
 
   if (!apiKey) {
     const fallback = getFallbackResponse(text, emotion, history);
-    return res.json({ reply: fallback, emotion: emotion || undefined, fallback: true });
+    return { reply: fallback, emotion: emotion || undefined, fallback: true };
   }
 
   const crisis = isCrisisMessage(text);
   const emotionalHistory = getEmotionalHistory(history);
   const systemPrompt = buildSystemPrompt(emotion, crisis, emotionalHistory);
-
   const openai = new OpenAI({ apiKey });
 
   const messages = [
@@ -370,15 +387,90 @@ app.post('/api/chat', async (req, res) => {
     const reply = completion.choices[0]?.message?.content?.trim();
     if (!reply) {
       const fallback = getFallbackResponse(text, emotion, history);
-      return res.json({ reply: fallback, emotion: emotion || undefined, fallback: true });
+      return { reply: fallback, emotion: emotion || undefined, fallback: true };
     }
-
-    res.json({ reply, emotion: emotion || undefined });
+    return { reply, emotion: emotion || undefined, fallback: false };
   } catch (err) {
     console.warn('OpenAI error (using fallback):', err.message);
     const fallback = getFallbackResponse(text, emotion, history);
-    res.json({ reply: fallback, emotion: emotion || undefined, fallback: true });
+    return { reply: fallback, emotion: emotion || undefined, fallback: true };
   }
+}
+
+// ----- Auth (SQLite: one account per email; messages stored per user_id) -----
+app.post('/api/auth/register', (req, res) => {
+  const { email, password } = req.body || {};
+  if (!email || !password || typeof email !== 'string' || typeof password !== 'string') {
+    return res.status(400).json({ error: 'email and password required' });
+  }
+  const e = email.trim().toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) {
+    return res.status(400).json({ error: 'invalid email' });
+  }
+  if (password.length < 6) {
+    return res.status(400).json({ error: 'password must be at least 6 characters' });
+  }
+  if (findUserByEmail(e)) {
+    return res.status(409).json({ error: 'email already registered' });
+  }
+  const hash = bcrypt.hashSync(password, 10);
+  const user = createUser(e, hash);
+  const token = signToken(user);
+  res.json({ token, user: { id: user.id, email: user.email } });
+});
+
+app.post('/api/auth/login', (req, res) => {
+  const { email, password } = req.body || {};
+  if (!email || !password || typeof email !== 'string' || typeof password !== 'string') {
+    return res.status(400).json({ error: 'email and password required' });
+  }
+  const user = findUserByEmail(email);
+  if (!user || !bcrypt.compareSync(password, user.password_hash)) {
+    return res.status(401).json({ error: 'invalid email or password' });
+  }
+  const token = signToken({ id: user.id, email: user.email });
+  res.json({ token, user: { id: user.id, email: user.email } });
+});
+
+app.get('/api/chat/history', (req, res) => {
+  const userId = getUserIdFromReq(req);
+  if (!userId) return res.status(401).json({ error: 'unauthorized' });
+  const rows = getAllMessagesForUser(userId, 200);
+  res.json({
+    messages: rows.map((r) => ({
+      id: String(r.id),
+      role: r.role,
+      text: r.text,
+      emotion: r.emotion || undefined,
+      createdAt: r.created_at,
+    })),
+  });
+});
+
+// ----- Chat endpoint -----
+app.post('/api/chat', async (req, res) => {
+  const { message, history: clientHistory = [], audioBase64 } = req.body;
+  const text = typeof message === 'string' ? message.trim() : '';
+
+  if (!text) {
+    return res.status(400).json({ error: 'message is required' });
+  }
+
+  const userId = getUserIdFromReq(req);
+  let history = Array.isArray(clientHistory)
+    ? clientHistory.filter((m) => m && (m.text || m.content)).map((m) => ({ role: m.role, text: m.text || m.content }))
+    : [];
+  if (userId) {
+    history = getRecentHistory(userId, 24);
+  }
+
+  const { reply, emotion, fallback } = await computeChatReply(text, history, audioBase64);
+  if (userId) {
+    insertMessage(userId, 'user', text, emotion || null);
+    insertMessage(userId, 'bot', reply, null);
+  }
+
+  res.json({ reply, emotion, fallback: fallback || undefined });
 });
 
 // Health check
@@ -393,5 +485,8 @@ app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
   if (!process.env.OPENAI_API_KEY) {
     console.warn('OPENAI_API_KEY not set. Set it in server/.env to enable LLM responses.');
+  }
+  if (!process.env.JWT_SECRET) {
+    console.warn('JWT_SECRET not set. Using a dev default; set JWT_SECRET in server/.env for production.');
   }
 });
