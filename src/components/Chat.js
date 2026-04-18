@@ -162,15 +162,12 @@ function Chat({ authToken, userEmail, onLogout }) {
       text,
       timestamp: new Date(),
     };
+    const historyForApi = messages
+      .filter((m) => m.role === 'user' || m.role === 'bot')
+      .map((m) => ({ role: m.role, text: m.text }));
     setMessages((prev) => [...prev, userMsg]);
     setInput('');
     setIsTyping(true);
-
-    const historyForApi = authToken
-      ? []
-      : messages
-          .filter((m) => m.role === 'user' || m.role === 'bot')
-          .map((m) => ({ role: m.role, text: m.text }));
 
     let audioBase64 = null;
     let blob = lastRecordedBlobRef.current;
@@ -259,7 +256,7 @@ function Chat({ authToken, userEmail, onLogout }) {
               Log out
             </button>
           )}
-          <span className="chat-header-badge">Research · MCS 3204</span>
+          {/* <span className="chat-header-badge">Research · MCS 3204</span> */}
         </div>
       </div>
 

@@ -69,4 +69,23 @@ export function getAllMessagesForUser(userId, limit = 200) {
   return rows.reverse();
 }
 
+/**
+ * Emotion labels stored on user messages (SER/text API at send time), oldest→newest.
+ * Used for long-term emotional memory in prompts.
+ */
+export function getPersistedUserEmotions(userId, limit = 40) {
+  const rows = db
+    .prepare(
+      `SELECT emotion FROM messages WHERE user_id = ? AND role = 'user' AND emotion IS NOT NULL AND TRIM(emotion) != '' ORDER BY id DESC LIMIT ?`
+    )
+    .all(userId, limit);
+  return rows.map((r) => String(r.emotion).toLowerCase()).reverse();
+}
+
+/** Count user messages ever (lightweight personalization scope). */
+export function getUserMessageCount(userId) {
+  const row = db.prepare(`SELECT COUNT(*) AS n FROM messages WHERE user_id = ? AND role = 'user'`).get(userId);
+  return row ? Number(row.n) || 0 : 0;
+}
+
 export default db;

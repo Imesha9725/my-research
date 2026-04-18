@@ -1,7 +1,12 @@
 /**
- * LLM-based chat API for emotion-aware mental health support.
- * Uses IEMOCAP dataset for relevant scenarios (strong match + suitable response).
- * Fallback to curated topic/emotion responses when no suitable IEMOCAP match.
+ * Emotion-aware mental health chat API.
+ *
+ * Primary path (generative): OpenAI-compatible chat completion (GPT, or local LLaMA/T5 via
+ * OPENAI_BASE_URL + OPENAI_MODEL). The model generates new replies from context—it does not
+ * look up answers from dataset rows.
+ *
+ * Fallback path (no API key / API error): rule-based topics + emotions + optional IEMOCAP
+ * retrieval (USE_IEMOCAP_RETRIEVAL) + general empathy lines—not a substitute for a generative model.
  */
 
 import 'dotenv/config';
@@ -19,6 +24,8 @@ import {
   insertMessage,
   getRecentHistory,
   getAllMessagesForUser,
+  getPersistedUserEmotions,
+  getUserMessageCount,
 } from './db.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -90,8 +97,107 @@ function getEmotionalHistory(history) {
   return emotions;
 }
 
-function buildSystemPrompt(emotion, isCrisis, emotionalHistory = []) {
-  const base = `You are a supportive, empathetic mental health companion. You provide emotional support and listen without judgment. You are NOT a therapist or doctor—do not diagnose or prescribe. If someone is in crisis or mentions self-harm or suicide, encourage them to contact a crisis helpline (e.g. Sumithrayo 1926 in Sri Lanka) and a professional. Keep responses concise (2–4 short paragraphs max), warm, and natural. Use "you" and "I" naturally. Do not use bullet points or formal lists unless helpful.`;
+function dominantEmotionFromList(arr) {
+  if (!Array.isArray(arr) || arr.length === 0) return null;
+  const counts = {};
+  for (const e of arr) {
+    const k = String(e || 'neutral').toLowerCase();
+    counts[k] = (counts[k] || 0) + 1;
+  }
+  return Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
+}
+
+function countEmotionSwitches(arr) {
+  if (!Array.isArray(arr) || arr.length < 2) return 0;
+  let n = 0;
+  for (let i = 1; i < arr.length; i += 1) {
+    if (String(arr[i]) !== String(arr[i - 1])) n += 1;
+  }
+  return n;
+}
+
+/** Short textual anchor for multi-turn reasoning in the system prompt. */
+function buildRecentUserThemesSnippet(history, maxTurns = 4, maxLen = 130) {
+  if (!Array.isArray(history) || history.length === 0) return '';
+  const users = history.filter((m) => m.role === 'user' && (m.text || m.content)).slice(-maxTurns);
+  if (users.length === 0) return '';
+  return users
+    .map((m, i) => {
+      const raw = (m.text || m.content || '').replace(/\s+/g, ' ').trim();
+      const t = raw.length > maxLen ? `${raw.slice(0, maxLen)}…` : raw;
+      return `(${i + 1}) "${t}"`;
+    })
+    .join('\n');
+}
+
+function buildMemoryContext(userId, history) {
+  const sessionKeywordEmotions = getEmotionalHistory(history);
+  if (!userId) {
+    return {
+      userId: null,
+      persistedEmotions: [],
+      sessionKeywordEmotions,
+      totalUserMessagesApprox: sessionKeywordEmotions.length,
+    };
+  }
+  return {
+    userId,
+    persistedEmotions: getPersistedUserEmotions(userId, 40),
+    sessionKeywordEmotions,
+    totalUserMessagesApprox: getUserMessageCount(userId),
+  };
+}
+
+/** Recent user turns that mention exams, study, or related stress (for adaptive fallback / prompt). */
+function countRecentExamStressUserTurns(history) {
+  if (!Array.isArray(history)) return 0;
+  const examRe = /\b(exam|exams|test|tests|stud(y|ying|ied)|final|midterm|assignment|grade|marks|gpa|semester|prepared|unprepared|revision|panic|fail|failing|parent|parents|mom|dad|forget|forgetting)\b/i;
+  const userMsgs = history.filter((m) => m.role === 'user' && (m.text || m.content)).slice(-8);
+  let n = 0;
+  for (const m of userMsgs) {
+    if (examRe.test(m.text || m.content || '')) n++;
+  }
+  return n;
+}
+
+function getExamStressIntensity(text) {
+  const lower = (text || '').toLowerCase();
+  if (
+    /\b(panic|terrified|going to fail|will fail|i'?ll fail|disappoint my|disappointing my|hopeless|can'?t calm|cant calm|heart racing|ruin my future)\b/.test(lower)
+  ) {
+    return 'high';
+  }
+  if (
+    /\b(really stressed|very stressed|so stressed|super stressed|anxious|scared|forgetting|can'?t remember|cant remember|keep forgetting|not prepared|not ready|overwhelmed)\b/.test(lower)
+  ) {
+    return 'medium';
+  }
+  return 'low';
+}
+
+function isExamAcademicStressScenario(text, history = []) {
+  const userBits = (history || [])
+    .filter((m) => m.role === 'user' && (m.text || m.content))
+    .slice(-4)
+    .map((m) => (m.text || m.content || '').toLowerCase())
+    .join(' ');
+  const blob = `${userBits} ${(text || '').toLowerCase()}`;
+  return /\b(exam|exams|final|midterm|test|tests|stud(y|ying|ied)|assignment|gpa|grade|marks|semester|unprepared|revision|course|class)\b/.test(blob);
+}
+
+function buildSystemPrompt(
+  emotion,
+  isCrisis,
+  emotionalHistory = [],
+  text = '',
+  history = [],
+  memoryContext = {}
+) {
+  const base = `You are a supportive, empathetic mental health companion. You provide emotional support and listen without judgment. You are NOT a therapist or doctor—do not diagnose or prescribe. If someone is in crisis or mentions self-harm or suicide, encourage them to contact a crisis helpline (e.g. Sumithrayo 1926 in Sri Lanka) and a professional. Keep responses concise (2–4 short paragraphs max), warm, and natural. Use "you" and "I" naturally. Do not use bullet points or formal lists unless helpful.
+
+Generative model (critical): You are a generative model—you compose original language for each turn. You do NOT retrieve, match, or copy lines from a fixed dialogue database or script. Do not behave like search-over-templates: infer meaning, emotion, and scenario from the user's words and conversation history, then generate a new response. This is the same idea as GPT, T5, or LLaMA-style generation, not lookup.
+
+Novel inputs: Situations may not appear verbatim in any training-style list. That is normal. Generate a fresh, empathetic reply; validate feelings; offer gentle support and, if helpful, one open question. Never refuse because something was "not in your data" or "not in training."`;
 
   let contextBlock = '';
   if (emotionalHistory.length > 0) {
@@ -104,14 +210,57 @@ Dynamically adjust your tone and content: acknowledge the emotional trajectory i
     contextBlock = `\n\nThe user appears to be feeling: ${emotion}. Adapt your tone and response to be contextually appropriate and empathetic for this emotional state.`;
   }
 
-  if (isCrisis) {
-    return `${base}\n\nImportant: The user's message may indicate a crisis. Prioritize safety: express care, validate feelings, and strongly encourage contacting a crisis helpline or trusted person. Be calm and supportive.${contextBlock}`;
+  if (isExamAcademicStressScenario(text, history)) {
+    const examIntensity = getExamStressIntensity(text);
+    const examTurns = countRecentExamStressUserTurns(history);
+    let level = 'low';
+    if (examIntensity === 'high' || examTurns >= 3) level = 'high';
+    else if (examIntensity === 'medium' || examTurns >= 2) level = 'medium';
+    contextBlock += `\n\nExam / study stress (scenario: exam_stress): Use an empathetic listener style—validate first (e.g. that the pressure feels overwhelming), normalize anxiety about memory and performance, gently separate self-worth from one exam when they fear failure or disappointing family. Offer light coping (short breaks, self-kindness) without sounding preachy. Estimated intensity for this turn: ${level}. User messages in this chat touching exam/study stress recently: about ${examTurns}. If intensity is medium or high, or they have brought this up multiple times, offer slightly deeper reassurance and acknowledge that the worry has been building.`;
   }
-  return base + contextBlock;
+
+  const mc = memoryContext || {};
+  const persist = Array.isArray(mc.persistedEmotions) ? mc.persistedEmotions : [];
+  const sessionKw = Array.isArray(mc.sessionKeywordEmotions) ? mc.sessionKeywordEmotions : [];
+  const blended = [...persist.slice(-14), ...sessionKw].slice(-22);
+  const dominantBlend = dominantEmotionFromList(
+    blended.length ? blended : sessionKw.length ? sessionKw : emotion ? [emotion] : ['neutral']
+  );
+  const volatility = countEmotionSwitches(blended.length >= 2 ? blended : sessionKw);
+
+  let memoryBlock = '';
+  if (persist.length > 0 || sessionKw.length > 0) {
+    memoryBlock = `\n\nEmotional memory (per-user + session): Use this to adapt tone and depth, not to label the user clinically.
+- Saved trajectory (from stored user turns, multimodal/text emotion at send time): ${persist.length ? persist.join(' → ') : 'none yet'}.
+- This chat window (keyword-inferred cues): ${sessionKw.length ? sessionKw.join(' → ') : 'sparse'}.
+- Working summary: dominant tone ≈ "${dominantBlend}"; emotion switches in this blended window ≈ ${volatility}. High switching → steady, grounding replies; stable heavy tone → sustained validation without sounding repetitive.`;
+  }
+
+  const themeSnippet = buildRecentUserThemesSnippet(history, 4, 130);
+  const multiTurnBlock = themeSnippet
+    ? `\n\nMulti-turn reasoning: Recent user lines in this thread (chronological in window):\n${themeSnippet}\nConnect the latest message to these earlier points. Maintain continuity; do not contradict prior validation; avoid "resetting" empathy as if the conversation just started unless the user clearly pivots topic.`
+    : '';
+
+  let personalizeBlock = '';
+  if (mc.userId && typeof mc.totalUserMessagesApprox === 'number' && mc.totalUserMessagesApprox > 2) {
+    personalizeBlock = `\n\nPersonalized adaptation: Returning user with about ${mc.totalUserMessagesApprox} saved user messages. You may acknowledge recurring themes gently if the transcript suggests it, deepen trust-appropriate continuity, and vary phrasing so repetition feels caring—not robotic.`;
+  } else if (!mc.userId && sessionKw.length >= 3) {
+    personalizeBlock = `\n\nSession depth: Several emotional cues already appear in this anonymous thread—thread concerns together and avoid generic openers that ignore what they already shared.`;
+  }
+
+  const tailBlocks = memoryBlock + multiTurnBlock + personalizeBlock;
+
+  if (isCrisis) {
+    return `${base}\n\nImportant: The user's message may indicate a crisis. Prioritize safety: express care, validate feelings, and strongly encourage contacting a crisis helpline or trusted person. Be calm and supportive.${contextBlock}${tailBlocks}`;
+  }
+  return base + contextBlock + tailBlocks;
 }
 
 // ----- Emotion API (IEMOCAP-based voice + text) -----
 const EMOTION_API_URL = process.env.EMOTION_API_URL || '';
+
+/** When false, fallback chain skips IEMOCAP string retrieval (pure rules + empathy pool). */
+const USE_IEMOCAP_RETRIEVAL = !/^(0|false|no|off)$/i.test(String(process.env.USE_IEMOCAP_RETRIEVAL ?? 'true').trim());
 
 // ----- Fallback when LLM fails (e.g. 429 quota) -----
 const CRISIS_RESPONSES = [
@@ -152,7 +301,6 @@ const TOPIC_KEYWORDS = [
 ];
 
 const TOPIC_RESPONSES = {
-  exam: ["Exams can be really overwhelming. You're not alone in feeling this way. What would help—breaking it into smaller parts, or talking through what's stressing you most?", "I hear you. Study pressure is real. Remember, your worth isn't measured by one exam. What subject or part feels hardest right now?", "That sounds tough. It might help to take short breaks and be kind to yourself. Would you like to talk about what's making it feel so heavy?"],
   work: ["Work stress can drain us. You're doing your best. What would help—venting about it, or thinking of one small thing you could change?", "I understand. Job pressure is real. Is there a specific situation that's weighing on you most?", "That sounds exhausting. It's okay to need a break. What would give you some relief right now—talking it out, or stepping back for a moment?"],
   family_separation: ["I understand—it's really hard when someone you love leaves. Take a deep breath. Your feelings are valid. Whether they're going overseas or you are, you'll see each other again. Try to stay calm—you're not alone. I'm here to listen. How long will the separation be?", "I hear you. Saying goodbye is painful. Remember to breathe. It's okay to feel sad. They will come back, and you'll be together again. Try to relax your mind—things will be okay. Would you like to talk? I'm here for you.", "That must be tough. When someone leaves, it hurts. Your feelings matter. Take a moment to breathe. You'll reunite—until then, we can chat anytime. You're going to be okay. How are you holding up?"],
   family: ["Family issues can be really painful. I'm here to listen. Would you like to share what's going on?", "I hear you. Family dynamics are complex. You're allowed to feel how you feel. What's the hardest part right now?", "That sounds difficult. It's brave of you to reach out. What would feel helpful—talking through it, or just being heard?"],
@@ -183,6 +331,51 @@ const TOPIC_RESPONSES = {
   academic_failure: ["Not passing or getting a bad grade can feel like a big setback. Your worth isn't defined by one result. Would you like to talk about it?", "I hear you. Academic pressure and failure can be crushing. What would help—venting, or thinking about what you can do next?", "That sounds really discouraging. It's okay to feel upset. Many people have been there. Want to talk through it?"],
 };
 
+/** Scenario exam_stress: validation → normalization → reassurance → gentle coping (research-style dialogue). */
+const EXAM_STRESS_BASE = [
+  "That sounds really overwhelming. Exams can put a lot of pressure on you.",
+  "Exams can be really overwhelming. You're not alone in feeling this way. What would help most right now—breaking study into smaller chunks, or talking through what's stressing you most?",
+  "I hear you. Study pressure is real. Remember, your worth isn't measured by one exam. What subject or part feels hardest right now?",
+  "That sounds tough. It might help to take short breaks and be kind to yourself. What's making it feel heaviest today?",
+];
+
+const EXAM_STRESS_INTENSITY_MEDIUM = [
+  "I understand how frustrating that can be. It's normal to feel anxious when you're worried about remembering everything.",
+  "Studying hard and still feeling like things slip away is exhausting—and that can make panic spike. Many people go through that; it doesn't mean you're failing.",
+];
+
+const EXAM_STRESS_INTENSITY_HIGH = [
+  "It makes sense that you're feeling that pressure. Your effort matters, and one exam doesn't define your future—or your worth.",
+  "Fear of disappointing people you love can feel huge. You're allowed to want their pride and still be gentle with yourself right now.",
+  "I'm really glad you're saying this out loud. Being scared you might fail doesn't mean you will—and it doesn't cancel the work you've already put in.",
+];
+
+const EXAM_STRESS_CALM_FOCUS = [
+  "Maybe taking short breaks or doing something small and calming could help you reset. You've already put in effort—try to be kind to yourself too.",
+  "When you wish you could calm down and focus, sometimes a few slow breaths, a short walk, or switching topics for five minutes can help more than pushing nonstop.",
+];
+
+const EXAM_STRESS_ESCALATED = [
+  "It sounds like exam stress has shown up in several messages—I'm glad you're sharing it. We can take this one worry at a time.",
+  "You've been carrying a lot of this worry lately. That doesn't mean you're weak—it means you care. What's one small thing that might ease the pressure today, even a little?",
+];
+
+function getExamStressAdaptiveResponse(text, history = []) {
+  const intensity = getExamStressIntensity(text);
+  const repeats = countRecentExamStressUserTurns(history);
+  const pool = [...EXAM_STRESS_BASE];
+  if (intensity === 'medium' || intensity === 'high') {
+    pool.push(...EXAM_STRESS_INTENSITY_MEDIUM);
+  }
+  if (intensity === 'high') {
+    pool.push(...EXAM_STRESS_INTENSITY_HIGH, ...EXAM_STRESS_CALM_FOCUS);
+  }
+  if (repeats >= 2) {
+    pool.push(...EXAM_STRESS_ESCALATED);
+  }
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
 const EMOTION_RESPONSES = {
   sad: ["It's okay to feel sad sometimes. Would you like to talk more about what's going on? I'm here to listen.", "I hear you. Sadness can feel overwhelming. Remember, it's okay to take things one step at a time. What would feel helpful right now—talking, or a small suggestion?", "Thank you for sharing that. Feeling down is valid. Is there something that usually helps you feel a bit better, or would you like to just vent?"],
   anxious: ["Anxiety can be really exhausting. You're not alone in feeling this way. Would it help to name one small thing you can control right now?", "I understand. Anxiety often makes everything feel bigger. Try to take a slow breath with me. What's one thing that's actually okay in this moment?", "It's brave of you to say that. When anxiety spikes, grounding can help—name 3 things you can see, 2 you can hear, 1 you can touch. Want to try?"],
@@ -194,6 +387,16 @@ const EMOTION_RESPONSES = {
   fear: ["Fear can be overwhelming. You're safe here to talk about it. What are you most afraid of right now?", "It's okay to be scared. Naming the fear can sometimes make it a bit easier. Would you like to try?", "I understand. When fear takes over, small steps help. What's one thing that would make you feel a tiny bit safer?"],
   default: ["I'm here to listen. You can share as much or as little as you like. How are you really doing today?", "Thank you for messaging. Whatever you're feeling is valid. Would you like to tell me more?", "I'm glad you're here. Take your time. What's on your mind?", "I'm listening. Sometimes just writing things out helps. What would you like to talk about?", "You're not alone. I'm here for you. How can I support you right now?"],
 };
+
+/** When no topic rule, no keyword emotion, and no strong IEMOCAP match—general empathy (not dataset lookup). */
+const NO_DATASET_MATCH_RESPONSES = [
+  "That sounds really difficult, and I'm glad you shared it with me. I'm here for you—could you tell me a bit more about what's going on?",
+  "I hear you. Even when it's hard to put into words, what you're feeling matters. What part of this weighs on you most right now?",
+  "Thank you for trusting me with that. You don't need a perfect explanation for your feelings to be valid. How are you coping day to day?",
+  "It makes sense that you'd reach out. I'm not here to judge—just to listen. What would feel most helpful: talking it through, or simply being heard?",
+  "Whatever you're facing, you don't have to face it alone in this chat. Can you say a little more about what happened or what you're afraid might happen?",
+  ...EMOTION_RESPONSES.default,
+];
 
 function getTopicFromText(text) {
   if (!text || typeof text !== 'string') return null;
@@ -265,6 +468,21 @@ function wordOverlapScore(a, b) {
   return overlap / Math.max(new Set(a).size, setB.size);
 }
 
+/** How many distinct content words from `a` appear in `b` (reduces false IEMOCAP matches on one shared word). */
+function distinctOverlapCount(a, b) {
+  if (a.length === 0 || b.length === 0) return 0;
+  const setB = new Set(b);
+  let n = 0;
+  for (const w of new Set(a)) {
+    if (setB.has(w)) n++;
+  }
+  return n;
+}
+
+/** Stricter retrieval: only use IEMOCAP when overlap is strong (hybrid: generative/fallback covers the rest). */
+const IEMOCAP_MIN_SCORE = Number(process.env.IEMOCAP_MIN_SCORE) || 0.62;
+const IEMOCAP_MIN_OVERLAP_WORDS = Number(process.env.IEMOCAP_MIN_OVERLAP_WORDS) || 2;
+
 function getDatasetResponse(userInput, emotion) {
   try {
     if (!fs.existsSync(DATASET_PATH)) return null;
@@ -277,16 +495,26 @@ function getDatasetResponse(userInput, emotion) {
     if (userContent.length === 0) return null;
     let bestScore = 0;
     let bestResponse = null;
+    let bestOverlap = 0;
     for (const p of pairs) {
       if (!p.user || !p.response) continue;
       if (!isSuitableIEMOCAPResponse(p.response)) continue;
-      const score = wordOverlapScore(userContent, contentWords(p.user));
-      if (score > bestScore) {
+      const wordsB = contentWords(p.user);
+      const score = wordOverlapScore(userContent, wordsB);
+      const overlapWords = distinctOverlapCount(userContent, wordsB);
+      if (score > bestScore || (score === bestScore && overlapWords > bestOverlap)) {
         bestScore = score;
+        bestOverlap = overlapWords;
         bestResponse = p.response;
       }
     }
-    if (bestScore >= 0.55 && bestResponse) return bestResponse;
+    if (
+      bestResponse &&
+      bestScore >= IEMOCAP_MIN_SCORE &&
+      bestOverlap >= IEMOCAP_MIN_OVERLAP_WORDS
+    ) {
+      return bestResponse;
+    }
     return null;
   } catch (_) {
     return null;
@@ -307,10 +535,11 @@ function getContextText(history) {
 }
 
 /**
- * Priority: crisis → greeting → topic (use context) → emotion → IEMOCAP → default.
- * Uses conversation history so follow-ups like "what to do for my pet?" get sick-pet context.
+ * Hybrid fallback (no LLM): crisis → greeting → thanks → topic → keyword emotion →
+ * IEMOCAP only if strong match → general empathy (no dataset).
+ * IEMOCAP is optional retrieval, not the only source of answers.
  */
-function getFallbackResponse(text, emotion, history = []) {
+function getFallbackResponse(text, emotion, history = [], memoryContext = {}) {
   const trimmed = (text || '').trim();
   if (!trimmed) return "I'm here when you're ready. You can type anything you'd like to share.";
   if (isCrisisMessage(text)) return CRISIS_RESPONSES[Math.floor(Math.random() * CRISIS_RESPONSES.length)];
@@ -318,11 +547,16 @@ function getFallbackResponse(text, emotion, history = []) {
   if (isThanks(text)) return THANKS_RESPONSES[Math.floor(Math.random() * THANKS_RESPONSES.length)];
   const contextText = getContextText(history) + ' ' + trimmed;
   const topic = getTopicFromText(trimmed) || getTopicFromText(contextText);
+  if (topic === 'exam') {
+    return getExamStressAdaptiveResponse(trimmed, history);
+  }
   if (topic && TOPIC_RESPONSES[topic]) return TOPIC_RESPONSES[topic][Math.floor(Math.random() * TOPIC_RESPONSES[topic].length)];
   if (emotion && EMOTION_RESPONSES[emotion]) return EMOTION_RESPONSES[emotion][Math.floor(Math.random() * EMOTION_RESPONSES[emotion].length)];
-  const fromDataset = getDatasetResponse(trimmed, emotion);
-  if (fromDataset) return fromDataset;
-  return EMOTION_RESPONSES.default[Math.floor(Math.random() * EMOTION_RESPONSES.default.length)];
+  if (USE_IEMOCAP_RETRIEVAL) {
+    const fromDataset = getDatasetResponse(trimmed, emotion);
+    if (fromDataset) return fromDataset;
+  }
+  return NO_DATASET_MATCH_RESPONSES[Math.floor(Math.random() * NO_DATASET_MATCH_RESPONSES.length)];
 }
 
 async function getEmotionFromAPI(text, audioBase64) {
@@ -342,7 +576,7 @@ async function getEmotionFromAPI(text, audioBase64) {
   }
 }
 
-async function computeChatReply(text, history, audioBase64) {
+async function computeChatReply(text, history, audioBase64, memoryContext = {}) {
   const apiKey = process.env.OPENAI_API_KEY;
   let emotion = null;
   if (EMOTION_API_URL && (text || audioBase64)) {
@@ -352,20 +586,29 @@ async function computeChatReply(text, history, audioBase64) {
     emotion = getEmotionFromText(text);
   }
 
+  const memoryMerged = {
+    ...memoryContext,
+    sessionKeywordEmotions: getEmotionalHistory(history),
+  };
+
   if (isThanks(text)) {
     const thanksReply = THANKS_RESPONSES[Math.floor(Math.random() * THANKS_RESPONSES.length)];
     return { reply: thanksReply, emotion: emotion || undefined, fallback: false };
   }
 
   if (!apiKey) {
-    const fallback = getFallbackResponse(text, emotion, history);
+    const fallback = getFallbackResponse(text, emotion, history, memoryMerged);
     return { reply: fallback, emotion: emotion || undefined, fallback: true };
   }
 
   const crisis = isCrisisMessage(text);
   const emotionalHistory = getEmotionalHistory(history);
-  const systemPrompt = buildSystemPrompt(emotion, crisis, emotionalHistory);
-  const openai = new OpenAI({ apiKey });
+  const systemPrompt = buildSystemPrompt(emotion, crisis, emotionalHistory, text, history, memoryMerged);
+  const openaiBaseURL = (process.env.OPENAI_BASE_URL || '').trim();
+  const openai = new OpenAI({
+    apiKey,
+    ...(openaiBaseURL ? { baseURL: openaiBaseURL } : {}),
+  });
 
   const messages = [
     { role: 'system', content: systemPrompt },
@@ -386,13 +629,13 @@ async function computeChatReply(text, history, audioBase64) {
 
     const reply = completion.choices[0]?.message?.content?.trim();
     if (!reply) {
-      const fallback = getFallbackResponse(text, emotion, history);
+      const fallback = getFallbackResponse(text, emotion, history, memoryMerged);
       return { reply: fallback, emotion: emotion || undefined, fallback: true };
     }
     return { reply, emotion: emotion || undefined, fallback: false };
   } catch (err) {
     console.warn('OpenAI error (using fallback):', err.message);
-    const fallback = getFallbackResponse(text, emotion, history);
+    const fallback = getFallbackResponse(text, emotion, history, memoryMerged);
     return { reply: fallback, emotion: emotion || undefined, fallback: true };
   }
 }
@@ -447,6 +690,31 @@ app.get('/api/chat/history', (req, res) => {
   });
 });
 
+function normalizeClientHistory(arr) {
+  if (!Array.isArray(arr)) return [];
+  return arr
+    .filter((m) => m && (m.text || m.content))
+    .map((m) => {
+      const role = m.role === 'assistant' ? 'bot' : m.role;
+      const t = (m.text || m.content || '').trim();
+      return { role, text: t };
+    })
+    .filter((m) => m.text && (m.role === 'user' || m.role === 'bot'));
+}
+
+/**
+ * Logged-in users used to send history: [] so the server only read SQLite. That broke context when DB lagged
+ * or for emotional-memory heuristics expecting transcript shape. Merge: prefer the richer source (usually UI).
+ */
+function mergeHistoryForUser(dbHistory, clientHistory, maxLen = 24) {
+  const db = Array.isArray(dbHistory) ? dbHistory.filter((m) => m?.text) : [];
+  const cl = normalizeClientHistory(clientHistory);
+  if (cl.length === 0) return db.slice(-maxLen);
+  if (db.length === 0) return cl.slice(-maxLen);
+  if (cl.length >= db.length) return cl.slice(-maxLen);
+  return db.slice(-maxLen);
+}
+
 // ----- Chat endpoint -----
 app.post('/api/chat', async (req, res) => {
   const { message, history: clientHistory = [], audioBase64 } = req.body;
@@ -457,14 +725,14 @@ app.post('/api/chat', async (req, res) => {
   }
 
   const userId = getUserIdFromReq(req);
-  let history = Array.isArray(clientHistory)
-    ? clientHistory.filter((m) => m && (m.text || m.content)).map((m) => ({ role: m.role, text: m.text || m.content }))
-    : [];
+  let history = normalizeClientHistory(clientHistory);
   if (userId) {
-    history = getRecentHistory(userId, 24);
+    const fromDb = getRecentHistory(userId, 24);
+    history = mergeHistoryForUser(fromDb, clientHistory, 24);
   }
 
-  const { reply, emotion, fallback } = await computeChatReply(text, history, audioBase64);
+  const memoryContext = buildMemoryContext(userId, history);
+  const { reply, emotion, fallback } = await computeChatReply(text, history, audioBase64, memoryContext);
   if (userId) {
     insertMessage(userId, 'user', text, emotion || null);
     insertMessage(userId, 'bot', reply, null);
@@ -477,14 +745,24 @@ app.post('/api/chat', async (req, res) => {
 app.get('/api/health', (_, res) => {
   res.json({
     ok: true,
+    generative: !!process.env.OPENAI_API_KEY,
     llm: !!process.env.OPENAI_API_KEY,
+    openaiBaseURL: !!(process.env.OPENAI_BASE_URL || '').trim(),
+    iemocapRetrievalFallback: USE_IEMOCAP_RETRIEVAL,
   });
 });
 
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
   if (!process.env.OPENAI_API_KEY) {
-    console.warn('OPENAI_API_KEY not set. Set it in server/.env to enable LLM responses.');
+    console.warn('OPENAI_API_KEY not set. Set it in server/.env to enable generative (GPT/compatible) responses.');
+  } else if ((process.env.OPENAI_BASE_URL || '').trim()) {
+    console.log('Generative API: using OPENAI_BASE_URL (e.g. local LLaMA/Ollama/vLLM). Model:', process.env.OPENAI_MODEL || 'gpt-4o-mini');
+  } else {
+    console.log('Generative API: OpenAI. Model:', process.env.OPENAI_MODEL || 'gpt-4o-mini');
+  }
+  if (!USE_IEMOCAP_RETRIEVAL) {
+    console.log('IEMOCAP retrieval disabled in fallback (USE_IEMOCAP_RETRIEVAL).');
   }
   if (!process.env.JWT_SECRET) {
     console.warn('JWT_SECRET not set. Using a dev default; set JWT_SECRET in server/.env for production.');
