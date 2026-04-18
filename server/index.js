@@ -5,15 +5,15 @@
  * OPENAI_BASE_URL + OPENAI_MODEL). The model generates new replies from context—it does not
  * look up answers from dataset rows.
  *
- * Fallback path (no API key / API error): rule-based topics + emotions + optional IEMOCAP
- * retrieval (USE_IEMOCAP_RETRIEVAL) when overlap is strong, plus curated topic/emotion lines and
- * general empathy—not a substitute for a generative model.
+ * Fallback path (no API key / API error): rule-based topics + emotions + curated empathy.
+ * IEMOCAP line retrieval is opt-in (USE_IEMOCAP_RETRIEVAL=true)—default off because scripted
+ * dataset replies often mismatch real user intent; prefer LLM/LoRA for answers.
  */
 
-import 'dotenv/config';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
 import OpenAI from 'openai';
@@ -30,6 +30,8 @@ import {
 } from './db.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+// Always load server/.env (not cwd .env) so OPENAI_API_KEY works when Node is started from repo root.
+dotenv.config({ path: path.resolve(__dirname, '.env') });
 const DATASET_PATH = path.resolve(__dirname, '../ml/models/dataset_responses.json');
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -260,8 +262,8 @@ Dynamically adjust your tone and content: acknowledge the emotional trajectory i
 // ----- Emotion API (IEMOCAP-based voice + text) -----
 const EMOTION_API_URL = process.env.EMOTION_API_URL || '';
 
-/** When false, fallback chain skips IEMOCAP string retrieval (pure rules + empathy pool). */
-const USE_IEMOCAP_RETRIEVAL = !/^(0|false|no|off)$/i.test(String(process.env.USE_IEMOCAP_RETRIEVAL ?? 'true').trim());
+/** Default off: IEMOCAP scripted lines are poor as a general answer bank. Set USE_IEMOCAP_RETRIEVAL=true to opt in. */
+const USE_IEMOCAP_RETRIEVAL = /^(1|true|yes|on)$/i.test(String(process.env.USE_IEMOCAP_RETRIEVAL || '').trim());
 
 // ----- Fallback when LLM fails (e.g. 429 quota) -----
 const CRISIS_RESPONSES = [
@@ -291,6 +293,32 @@ const TOPIC_KEYWORDS = [
   { keywords: ['nobody likes', 'rejected', 'friends left', 'excluded', 'left out', 'dont fit in', "don't fit in", 'people avoid'], topic: 'rejection_social' },
   { keywords: ['lost my job', 'fired', 'laid off', 'unemployed', 'job loss', 'got fired', 'lost job'], topic: 'job_loss' },
   { keywords: ['bullied', 'bullying', 'picked on', 'people are mean', 'they mock', 'teasing me'], topic: 'bullying' },
+  // Regret / repair after hurting someone — before conflict_fight so follow-ups are not re-labeled as generic "arguments"
+  {
+    keywords: [
+      "didn't mean",
+      'didnt mean',
+      'not talking to me',
+      'not talking to',
+      "won't talk to me",
+      'wont talk to me',
+      'ignoring me',
+      'ignore me',
+      'silent treatment',
+      'they wont talk',
+      "they won't talk",
+      'regret saying',
+      'sorry for what i said',
+      'hurt their feelings',
+      'messed up what i said',
+      'wish i could take it back',
+      'wish i hadnt said',
+      "wish i hadn't said",
+      'scared i lost',
+      'afraid i lost my friend',
+    ],
+    topic: 'friendship_repair',
+  },
   { keywords: ['had a fight', 'we argued', 'big argument', 'fought with', 'fight with', 'we had a fight'], topic: 'conflict_fight' },
   { keywords: ['disappointed', 'didnt work out', "didn't work out", 'let down', 'disappointment', 'things didnt go'], topic: 'disappointment' },
   { keywords: ['cant stop thinking', "can't stop thinking", 'overthinking', 'racing thoughts', 'mind wont stop', "mind won't stop", 'cant shut off'], topic: 'overthinking' },
@@ -322,7 +350,22 @@ const TOPIC_RESPONSES = {
   rejection_social: ["Feeling rejected or left out hurts a lot. I hear you. Would you like to talk about what happened? You matter, regardless of how others act.", "That sounds really painful. Connection and belonging matter—and you deserve both. What would feel supportive right now?", "I'm sorry you're going through this. Rejection can make us question ourselves, but it says more about the situation than about you. Want to talk about it?"],
   job_loss: ["Losing a job is a huge blow—to your routine, identity, and security. I'm sorry. How are you coping? It's okay to feel whatever you're feeling.", "That's really hard. Job loss can trigger a lot of emotions. Would it help to talk through it, or brainstorm one small next step?", "I hear you. This is a difficult transition. Be gentle with yourself. What would feel helpful right now—venting, or thinking about what comes next?"],
   bullying: ["I'm sorry you're going through that. Nobody deserves to be treated that way. How long has this been going on? Would it help to talk about it?", "Bullying can make you feel small and alone. You're not—and reaching out here takes courage. What would feel supportive right now?", "That sounds really tough. Have you been able to talk to anyone you trust about it? I'm here to listen."],
-  conflict_fight: ["Fights and arguments can leave us shaken. What happened? Sometimes just talking it through helps.", "Conflict is exhausting. It's okay to feel upset or confused. Would you like to vent, or think about how to repair things?", "I hear you. Arguments often come from both sides caring. What would help right now—getting it off your chest, or working through it?"],
+  friendship_repair: [
+    "It makes sense you'd feel awful after saying something you didn't mean—especially when someone you care about goes quiet. That silence can feel scary. You're not a bad person for slipping up; it means the friendship matters. When you're ready, would a short, honest message (or a note) feel possible, or is it still too raw?",
+    "Carrying regret when they're not answering is really heavy. You can feel guilty *and* still deserve a chance to repair things. I'm not here to push you either way—just to say your feelings are valid. What part hurts most: the words you used, or the distance right now?",
+    "I'm sorry you're in this limbo. Wanting to take words back usually means you care about how they felt. If they need space, that can hurt even when it's understandable. Is there one thing you'd want them to know about what you were feeling when you said it?",
+    "That sounds painful—regret plus someone pulling away is a lot at once. You're allowed to feel sad or anxious about it. If you want to practice wording for an apology that feels true to you (no pressure), I can help you think it through.",
+    "When someone we love stops talking to us, our minds often spiral. Whatever you're imagining, your pain right now is real. You don't have to figure out the whole repair tonight—sometimes just naming what you wish you'd said differently helps a little. What would you want them to hear from you?",
+  ],
+  conflict_fight: [
+    "Fights and arguments can leave us shaken—especially with someone close. Feeling really bad afterward is a natural sign you care. What happened from your side? I'm listening.",
+    "It sounds like you're hurting after this clash with your friend. Conflict can stir up guilt, anger, and fear all at once. You don't have to sort it alone—what would help most: getting it off your chest, or thinking about a small step toward making things right?",
+    "Arguments with people we trust can hit harder than other stress. It's okay to feel low or wired after. What part is sitting with you the heaviest right now—the fight itself, or how things feel between you now?",
+    "I hear how rough this is. When we care about someone, fights can feel like they shake the whole friendship. Your feelings about it matter. Would it help to talk through what led up to it, or how you're feeling toward them today?",
+    "That sounds really painful. You and your friend both have real feelings here—even when things got heated. What would feel kindest to yourself in the next day or two while emotions are still high?",
+    "Sometimes after a fight we replay every word. That doesn't mean you're broken—it means this relationship matters to you. If you want, we can go gently: what do you wish had gone differently in that moment?",
+    "I hear you. Arguments often come from both sides caring—sometimes care shows up messy. What would help right now—venting, or thinking through what you might want to say when you're both calmer?",
+  ],
   disappointment: ["Disappointment is heavy. It's okay to sit with it. Would you like to talk about what didn't work out?", "I hear you. When things don't go as hoped, it can feel like a letdown. What would feel helpful—talking it through, or just being heard?", "That sounds hard. Disappointment is valid. Sometimes the best we can do is acknowledge it. Want to share what happened?"],
   overthinking: ["Racing thoughts are exhausting. You're not alone. Would it help to try a grounding exercise—name 3 things you see, 2 you hear, 1 you can touch?", "I hear you. When your mind won't stop, it can feel overwhelming. What's one small thing that sometimes helps you slow down?", "Overthinking can spiral. It's brave to notice it. Would talking it out help, or do you need to shift focus for a bit?"],
   irritable: ["Feeling irritable and on edge is draining. It often means we're carrying too much. What's been going on lately?", "I hear you. When everything annoys us, something underneath is usually going on. Would it help to talk about it?", "That short fuse can be exhausting. Be gentle with yourself. What would give you a bit of relief right now?"],
@@ -766,8 +809,8 @@ app.listen(PORT, () => {
   } else {
     console.log('Generative API: OpenAI. Model:', process.env.OPENAI_MODEL || 'gpt-4o-mini');
   }
-  if (!USE_IEMOCAP_RETRIEVAL) {
-    console.log('IEMOCAP retrieval disabled in fallback (USE_IEMOCAP_RETRIEVAL).');
+  if (USE_IEMOCAP_RETRIEVAL) {
+    console.log('IEMOCAP line retrieval enabled in fallback (USE_IEMOCAP_RETRIEVAL=true).');
   }
   if (!process.env.JWT_SECRET) {
     console.warn('JWT_SECRET not set. Using a dev default; set JWT_SECRET in server/.env for production.');

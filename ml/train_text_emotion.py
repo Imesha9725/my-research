@@ -14,6 +14,7 @@ Install:
 Run:
   python ml/train_text_emotion.py
   python ml/train_text_emotion.py --max-per-class 800 --epochs 2
+  python ml/train_text_emotion.py --extra-csv ml/data/processed/goemotions_for_text_emotion.csv
 """
 from __future__ import annotations
 
@@ -92,6 +93,13 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset-json", type=Path, default=DATASET_JSON)
     parser.add_argument("--augment-csv", type=Path, default=DEFAULT_AUGMENT)
+    parser.add_argument(
+        "--extra-csv",
+        type=Path,
+        action="append",
+        default=[],
+        help="Additional CSVs with columns text,emotion (e.g. ml/data/processed/goemotions_for_text_emotion.csv). Repeatable.",
+    )
     parser.add_argument("--output", type=Path, default=OUTPUT_DIR)
     parser.add_argument("--model", type=str, default="distilbert-base-uncased")
     parser.add_argument("--epochs", type=int, default=3)
@@ -106,6 +114,8 @@ def main() -> None:
 
     rows = load_rows_from_dataset_responses(args.dataset_json, args.max_per_class)
     rows.extend(load_augment_csv(args.augment_csv))
+    for extra in args.extra_csv or []:
+        rows.extend(load_augment_csv(extra))
     if len(rows) < 50:
         raise SystemExit(
             f"Too few training rows ({len(rows)}). Ensure {args.dataset_json} exists and/or augment CSV."
@@ -203,7 +213,8 @@ def main() -> None:
         "label2id": LABEL2ID,
         "train_rows": len(tx),
         "val_rows": len(vx),
-        "sources": [str(args.dataset_json), str(args.augment_csv)],
+        "sources": [str(args.dataset_json), str(args.augment_csv)]
+        + [str(p) for p in (args.extra_csv or [])],
     }
     with open(args_out / "text_emotion_meta.json", "w", encoding="utf-8") as f:
         json.dump(meta, f, indent=2)
