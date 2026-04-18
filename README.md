@@ -99,7 +99,7 @@ JWT_SECRET=use-a-long-random-string-in-production
 
 Replace `sk-your-openai-key-here` with your real OpenAI API key from https://platform.openai.com/api-keys. Set **`JWT_SECRET`** to a long random string for login tokens (optional for local dev; the server falls back to a dev default with a warning).
 
-**Accounts & chat history:** With `REACT_APP_CHAT_API_URL` set, the app shows **Register / Log in**. Messages are stored in **`server/data/chat.db`** (SQLite), one row per user and bot turn, including **emotion** on user messages. Logged-in users get **emotional memory** in the LLM system prompt: saved emotion trajectories from the DB are merged with this-session keyword cues, plus **multi-turn reasoning** (recent user lines summarized) and **personalized adaptation** (returning-user depth). Guests still get session-only keyword emotion + multi-turn prompts. The database file is gitignored.
+**Accounts & chat history:** With `REACT_APP_CHAT_API_URL` set, the app shows **Register / Log in**. Use **Continue without an account** for guest mode (no saving). For signed-in users, messages go to **`server/data/chat.db`** (SQLite), one row per user and bot turn, including **emotion** on user messages. **Emotional memory** in the LLM system prompt merges saved emotion trajectories from the DB with this-session keyword cues, plus **multi-turn reasoning** (recent user lines summarized) and **personalized adaptation** (returning-user depth). Guests still get session-only keyword emotion + multi-turn prompts. The database file is gitignored.
 
 **Project root `.env`** – create this file in `D:\My Research Project\my-research\`:
 

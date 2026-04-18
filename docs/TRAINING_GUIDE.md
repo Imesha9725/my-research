@@ -55,7 +55,6 @@ python ml/train_text_emotion.py
 ```
 
 **Output:** `ml/models/text_emotion/` — restart **uvicorn** (`ml/app.py`); health shows `text_emotion_model_loaded: true`. Text then uses the **neural** classifier; **speech** still uses **SER** (joblib). Add more rows to the CSV or use GoEmotions-style data for stronger text-focused research.
-
 ---
 
 ## 3. Response Selection – Matching User to Reply

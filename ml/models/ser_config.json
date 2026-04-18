@@ -1,0 +1,11 @@
+{
+  "sr": 16000,
+  "n_mfcc": 40,
+  "max_frames": 100,
+  "classes": [
+    "angry",
+    "happy",
+    "neutral",
+    "sad"
+  ]
+}

@@ -6,7 +6,8 @@
  * look up answers from dataset rows.
  *
  * Fallback path (no API key / API error): rule-based topics + emotions + optional IEMOCAP
- * retrieval (USE_IEMOCAP_RETRIEVAL) + general empathy lines—not a substitute for a generative model.
+ * retrieval (USE_IEMOCAP_RETRIEVAL) when overlap is strong, plus curated topic/emotion lines and
+ * general empathy—not a substitute for a generative model.
  */
 
 import 'dotenv/config';
@@ -301,6 +302,7 @@ const TOPIC_KEYWORDS = [
 ];
 
 const TOPIC_RESPONSES = {
+  exam: ["Exams can be really overwhelming. You're not alone in feeling this way. What would help—breaking it into smaller parts, or talking through what's stressing you most?", "I hear you. Study pressure is real. Remember, your worth isn't measured by one exam. What subject or part feels hardest right now?", "That sounds tough. It might help to take short breaks and be kind to yourself. Would you like to talk about what's making it feel so heavy?"],
   work: ["Work stress can drain us. You're doing your best. What would help—venting about it, or thinking of one small thing you could change?", "I understand. Job pressure is real. Is there a specific situation that's weighing on you most?", "That sounds exhausting. It's okay to need a break. What would give you some relief right now—talking it out, or stepping back for a moment?"],
   family_separation: ["I understand—it's really hard when someone you love leaves. Take a deep breath. Your feelings are valid. Whether they're going overseas or you are, you'll see each other again. Try to stay calm—you're not alone. I'm here to listen. How long will the separation be?", "I hear you. Saying goodbye is painful. Remember to breathe. It's okay to feel sad. They will come back, and you'll be together again. Try to relax your mind—things will be okay. Would you like to talk? I'm here for you.", "That must be tough. When someone leaves, it hurts. Your feelings matter. Take a moment to breathe. You'll reunite—until then, we can chat anytime. You're going to be okay. How are you holding up?"],
   family: ["Family issues can be really painful. I'm here to listen. Would you like to share what's going on?", "I hear you. Family dynamics are complex. You're allowed to feel how you feel. What's the hardest part right now?", "That sounds difficult. It's brave of you to reach out. What would feel helpful—talking through it, or just being heard?"],
@@ -538,8 +540,11 @@ function getContextText(history) {
  * Hybrid fallback (no LLM): crisis → greeting → thanks → topic → keyword emotion →
  * IEMOCAP only if strong match → general empathy (no dataset).
  * IEMOCAP is optional retrieval, not the only source of answers.
+ *
+ * Priority: crisis → greeting → topic (use context) → emotion → IEMOCAP → default.
+ * Uses conversation history so follow-ups like "what to do for my pet?" get sick-pet context.
  */
-function getFallbackResponse(text, emotion, history = [], memoryContext = {}) {
+function getFallbackResponse(text, emotion, history = [], _memoryContext = {}) {
   const trimmed = (text || '').trim();
   if (!trimmed) return "I'm here when you're ready. You can type anything you'd like to share.";
   if (isCrisisMessage(text)) return CRISIS_RESPONSES[Math.floor(Math.random() * CRISIS_RESPONSES.length)];

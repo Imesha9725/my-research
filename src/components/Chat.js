@@ -256,7 +256,7 @@ function Chat({ authToken, userEmail, onLogout }) {
               Log out
             </button>
           )}
-          {/* <span className="chat-header-badge">Research · MCS 3204</span> */}
+          <span className="chat-header-badge">Research · MCS 3204</span>
         </div>
       </div>
 
