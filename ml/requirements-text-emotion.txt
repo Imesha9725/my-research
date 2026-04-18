@@ -1,0 +1,8 @@
+# Text emotion classifier (BERT/DistilBERT) — train with train_text_emotion.py; optional for ml/app.py inference
+# pip install -r ml/requirements.txt -r ml/requirements-text-emotion.txt
+torch>=2.1.0
+transformers>=4.40.0
+datasets>=2.18.0
+accelerate>=0.27.0
+pandas>=2.0.0
+scikit-learn>=1.3.0

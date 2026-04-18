@@ -54,6 +54,29 @@ python ml/extract_dataset_responses.py
 
 This creates `ml/models/dataset_responses.json`. The chatbot will use these dataset responses first; if none match, it falls back to built-in responses. If your IEMOCAP has no transcript files, you can create `ml/models/dataset_responses.json` manually with format: `{"sad": ["response1", "response2"], "happy": [...], "angry": [...], "neutral": [...]}`.
 
+### Optional: Train **text** emotion (BERT / DistilBERT) — text-first research
+
+Speech stays on **SER** (`train_ser.py`). For **text** input, you can train a small transformer classifier (recommended if you focus on text):
+
+```powershell
+pip install -r ml/requirements.txt -r ml/requirements-text-emotion.txt
+python ml/train_text_emotion.py
+```
+
+This reads user lines from `dataset_responses.json` plus `ml/data/text_emotion_augment.csv`, saves **`ml/models/text_emotion/`**, and **`ml/app.py`** loads it automatically when present (otherwise keyword fallback). **Response generation** remains LoRA/GPT as in the section below.
+
+### Optional: LoRA fine-tuning for empathetic generation (adapts to unseen questions)
+
+This teaches a **small generative** model (GPT-style completion) a **listener style**—validation, reassurance, gentle questions—using curated multi-turn examples in **`ml/data/empathic_support_train.jsonl`**. It is **not** “store every possible user sentence”; add more JSONL lines in the same `messages` format to strengthen behavior before you train.
+
+```powershell
+cd D:\My Research Project\my-research
+pip install -r ml/requirements.txt -r ml/requirements-train.txt
+python ml/finetune_lora_support.py --model Qwen/Qwen2.5-0.5B-Instruct --epochs 3
+```
+
+**GPU** (~6–8GB+) recommended. Output: **`ml/models/lora_empathic_support/`** (gitignored). Next steps: **merge** LoRA into the base weights (Hugging Face `PeftModel.merge_and_unload`) or serve with **vLLM / Ollama / LM Studio** (OpenAI-compatible API), then set **`OPENAI_BASE_URL`** and **`OPENAI_MODEL`** in `server/.env` so your existing Node server calls the adapted model instead of only commercial GPT.
+
 ---
 
 ### Step 2: Create environment files (one time)
@@ -62,13 +85,21 @@ This creates `ml/models/dataset_responses.json`. The chatbot will use these data
 
 ```
 OPENAI_API_KEY=sk-your-openai-key-here
+OPENAI_MODEL=gpt-4o-mini
+# Optional: local generative model (OpenAI-compatible API, e.g. Ollama, vLLM, LLaMA)
+# OPENAI_BASE_URL=http://localhost:11434/v1
+# OPENAI_MODEL=llama3.2
 EMOTION_API_URL=http://localhost:5002
 JWT_SECRET=use-a-long-random-string-in-production
+# Optional: set to false to turn off IEMOCAP line-matching in non-LLM fallback only
+# USE_IEMOCAP_RETRIEVAL=true
 ```
+
+**Generative vs lookup:** With `OPENAI_API_KEY` set, replies are **generated** each turn (GPT or any OpenAI-compatible model via `OPENAI_BASE_URL`)—the app does **not** paste answers from `dataset_responses.json` in that path. IEMOCAP JSON is only used in the **fallback** chain when the LLM is unavailable, unless `USE_IEMOCAP_RETRIEVAL=false`.
 
 Replace `sk-your-openai-key-here` with your real OpenAI API key from https://platform.openai.com/api-keys. Set **`JWT_SECRET`** to a long random string for login tokens (optional for local dev; the server falls back to a dev default with a warning).
 
-**Accounts & chat history:** With `REACT_APP_CHAT_API_URL` set, the app shows **Register / Log in**. Messages are stored in **`server/data/chat.db`** (SQLite), one row per user and bot turn, including **emotion** on user messages for emotional memory. Use **Continue without an account** for guest mode (no saving). The database file is gitignored.
+**Accounts & chat history:** With `REACT_APP_CHAT_API_URL` set, the app shows **Register / Log in**. Use **Continue without an account** for guest mode (no saving). For signed-in users, messages go to **`server/data/chat.db`** (SQLite), one row per user and bot turn, including **emotion** on user messages. **Emotional memory** in the LLM system prompt merges saved emotion trajectories from the DB with this-session keyword cues, plus **multi-turn reasoning** (recent user lines summarized) and **personalized adaptation** (returning-user depth). Guests still get session-only keyword emotion + multi-turn prompts. The database file is gitignored.
 
 **Project root `.env`** – create this file in `D:\My Research Project\my-research\`:
 

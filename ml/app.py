@@ -27,6 +27,8 @@ scaler = None
 model = None
 label_encoder = None
 config = {}
+_text_tokenizer = None
+_text_classifier = None
 
 # Text emotion keywords; order matters: check sad (and "not good" etc.) before happy
 TEXT_KEYWORDS_ORDERED = [
@@ -51,8 +53,54 @@ def load_models():
     return False
 
 
+def load_text_emotion_model():
+    """Optional DistilBERT/BERT classifier from ml/models/text_emotion (train_text_emotion.py)."""
+    global _text_tokenizer, _text_classifier
+    path = MODEL_DIR / "text_emotion"
+    if not (path / "config.json").exists():
+        return False
+    try:
+        import torch
+        from transformers import AutoModelForSequenceClassification, AutoTokenizer
+    except ImportError:
+        print("Text emotion model found but torch/transformers not installed. pip install -r ml/requirements-text-emotion.txt")
+        return False
+    try:
+        _text_tokenizer = AutoTokenizer.from_pretrained(str(path))
+        _text_classifier = AutoModelForSequenceClassification.from_pretrained(str(path))
+        _text_classifier.eval()
+        print("Text emotion model loaded from", path)
+        return True
+    except Exception as e:
+        print("Failed to load text emotion model:", e)
+        _text_tokenizer = None
+        _text_classifier = None
+        return False
+
+
 def predict_text(text: str):
-    t = (text or "").lower().strip()
+    raw = (text or "").strip()
+    if not raw:
+        return "neutral", 0.5
+    if _text_classifier is not None and _text_tokenizer is not None:
+        try:
+            import torch
+
+            inputs = _text_tokenizer(raw, return_tensors="pt", truncation=True, max_length=128)
+            with torch.no_grad():
+                logits = _text_classifier(**inputs).logits[0]
+            probs = torch.softmax(logits, dim=-1)
+            idx = int(torch.argmax(probs).item())
+            lid = _text_classifier.config.id2label
+            if isinstance(lid, dict):
+                label = lid.get(idx, lid.get(str(idx), "neutral"))
+            else:
+                label = lid[idx] if idx < len(lid) else "neutral"
+            conf = float(probs[idx].item())
+            return str(label).lower(), conf
+        except Exception:
+            pass
+    t = raw.lower()
     for emotion, keywords in TEXT_KEYWORDS_ORDERED:
         if any(k in t for k in keywords):
             return emotion, 0.85
@@ -95,11 +143,18 @@ def startup():
         print("SER model loaded from", MODEL_DIR)
     else:
         print("No SER model found. Train with: IEMOCAP_PATH=/path/to/iemocap python ml/train_ser.py")
+    load_text_emotion_model()
+    if _text_classifier is None:
+        print("Text emotion: using keyword fallback. Train with: python ml/train_text_emotion.py")
 
 
 @app.get("/api/health")
 def health():
-    return {"ok": True, "ser_loaded": model is not None}
+    return {
+        "ok": True,
+        "ser_loaded": model is not None,
+        "text_emotion_model_loaded": _text_classifier is not None,
+    }
 
 
 class PredictBody(BaseModel):

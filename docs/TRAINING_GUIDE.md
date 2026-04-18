@@ -38,20 +38,23 @@ python ml/train_ser.py
 - Add more phrases to `KEYWORD_MAP` in `server/index.js` and `TEXT_KEYWORDS_ORDERED` in `ml/app.py`
 - Use synonyms and common phrasings
 
-### Option B: Train a text classifier (better)
+### Option B: Train a text classifier (implemented)
 
-1. **Dataset:** Use IEMOCAP transcriptions + labels from `dataset_responses.json` (each pair has emotion).
-2. **Model:** Simple BERT or TF-IDF + Logistic Regression.
-3. **Train:** Label each “user” text with its emotion and train a classifier.
+**Script:** `ml/train_text_emotion.py` — **DistilBERT** (default) multi-class on:
 
-Example steps:
+- User lines from `ml/models/dataset_responses.json` (IEMOCAP emotions: `neutral`, `sad`, `happy`, `angry`)
+- Plus `ml/data/text_emotion_augment.csv` (seed phrases for `anxious`, `stress`, `lonely`, `tired`, `fear`)
 
-```python
-# Pseudo: load user texts from dataset_responses.json, map to emotion
-# Train sklearn LogisticRegression or use transformers for BERT
-# Save model, use in ml/app.py for text emotion prediction
+**Install:** `pip install -r ml/requirements.txt -r ml/requirements-text-emotion.txt`
+
+**Run:**
+
+```powershell
+cd D:\My Research Project\my-research
+python ml/train_text_emotion.py
 ```
 
+**Output:** `ml/models/text_emotion/` — restart **uvicorn** (`ml/app.py`); health shows `text_emotion_model_loaded: true`. Text then uses the **neural** classifier; **speech** still uses **SER** (joblib). Add more rows to the CSV or use GoEmotions-style data for stronger text-focused research.
 ---
 
 ## 3. Response Selection – Matching User to Reply
@@ -66,6 +69,18 @@ Example steps:
 | **Use conversation history** | Pass last 2–3 messages so “what to do for my pet?” uses prior “my cat is sick” context |
 | **Use LLM** | Set `OPENAI_API_KEY` – LLM can infer context and give better replies |
 | **Train retrieval model** | Embed user text and responses, train to score best match |
+| **LoRA fine-tuning** | Train a small instruct model on `ml/data/empathic_support_train.jsonl` (`ml/finetune_lora_support.py`) for empathy style on *unseen* questions—see README “Optional: LoRA fine-tuning” |
+
+---
+
+## 4. Generative model (LoRA) – adapt without memorizing every answer
+
+**Goal:** Better replies when the user’s exact words are **not** in IEMOCAP or fixed rules.
+
+1. Add or edit lines in **`ml/data/empathic_support_train.jsonl`** (each line: `{"messages":[{"role":"system"|"user"|"assistant","content":"..."}, ...]}`).
+2. Install training deps: `pip install -r ml/requirements.txt -r ml/requirements-train.txt`
+3. Run: `python ml/finetune_lora_support.py --model Qwen/Qwen2.5-0.5B-Instruct --epochs 3`
+4. Serve the merged model or adapter via an **OpenAI-compatible** API and set **`OPENAI_BASE_URL`** in `server/.env`.
 
 ---
 
@@ -86,6 +101,10 @@ Example steps:
 4. **LLM**
    - [ ] Add `OPENAI_API_KEY` in `server/.env` for stronger responses
 
+5. **LoRA (optional)**
+   - [ ] Expand `ml/data/empathic_support_train.jsonl` with your best multi-turn examples
+   - [ ] Run `ml/finetune_lora_support.py` on a GPU; point the server at your served model
+
 ---
 
 ## Files to Edit for Training
@@ -95,3 +114,5 @@ Example steps:
 | `ml/train_ser.py` | SER model (MLP, epochs, features) |
 | `ml/app.py` | Load SER model, text keywords |
 | `server/index.js` | Topic keywords, response mapping |
+| `ml/finetune_lora_support.py` | LoRA SFT on empathic JSONL |
+| `ml/data/empathic_support_train.jsonl` | Training conversations |
