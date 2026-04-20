@@ -5,15 +5,15 @@
  * OPENAI_BASE_URL + OPENAI_MODEL). The model generates new replies from context—it does not
  * look up answers from dataset rows.
  *
- * Fallback path (no API key / API error): rule-based topics + emotions + optional IEMOCAP
- * retrieval (USE_IEMOCAP_RETRIEVAL) when overlap is strong, plus curated topic/emotion lines and
- * general empathy—not a substitute for a generative model.
+ * Fallback path (no API key / API error): rule-based topics + emotions + curated empathy.
+ * IEMOCAP line retrieval is opt-in (USE_IEMOCAP_RETRIEVAL=true)—default off because scripted
+ * dataset replies often mismatch real user intent; prefer LLM/LoRA for answers.
  */
 
-import 'dotenv/config';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
 import OpenAI from 'openai';
@@ -30,6 +30,8 @@ import {
 } from './db.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+// Always load server/.env (not cwd .env) so OPENAI_API_KEY works when Node is started from repo root.
+dotenv.config({ path: path.resolve(__dirname, '.env') });
 const DATASET_PATH = path.resolve(__dirname, '../ml/models/dataset_responses.json');
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -54,7 +56,7 @@ function getUserIdFromReq(req) {
 app.use(cors({ origin: true }));
 app.use(express.json());
 
-// ----- Emotion detection (same logic as frontend; can be replaced with a trained model) -----
+// ----- Emotion detection (heuristic; ML path via EMOTION_API_URL + ml/app.py when running) -----
 const KEYWORD_MAP = [
   { keywords: ['sad', 'sadness', 'depressed', 'down', 'miserable', 'hopeless', 'rejected', 'not good', 'not well', 'not okay', 'not great', 'not fine', 'no good', "don't feel good", "don't feel well", "i'm not good", "feeling not good", "am not good", "not doing good", "not doing well"], emotion: 'sad' },
   { keywords: ['anxious', 'anxiety', 'nervous', 'worried', 'panic'], emotion: 'anxious' },
@@ -66,15 +68,58 @@ const KEYWORD_MAP = [
   { keywords: ['scared', 'afraid', 'fear', 'frightened', 'worried about future', 'future scares'], emotion: 'fear' },
 ];
 
+/** Phrase/regex layer — catches lines like “I feel like I’m going to fail everything” with no single keyword hit. */
+const EMOTION_REGEX_RULES = [
+  { re: /\b(going to fail|gonna fail|will fail|i'?ll fail|feel like i.*\bfail|afraid i'?ll fail|scared (?:i )?(?:will|'?ll) fail|fail everything|failing everything)\b/i, emotion: 'stress' },
+  { re: /\b(exam|exams|midterm|finals)\b.*\b(stress|stressed|panic|worried|scared|afraid|fail)\b|\b(stress|stressed|panic|worried)\b.*\b(exam|exams|study|studying)\b/i, emotion: 'stress' },
+  { re: /\b(so stressed|really stressed|very stressed|super stressed|under pressure|too much pressure|deadline|burnout|burned out)\b/i, emotion: 'stress' },
+  { re: /\b(i feel|i'?m feeling|im feeling|feeling)\s+(sad|awful|terrible|empty|numb|hopeless|lost)\b/i, emotion: 'sad' },
+  { re: /\b(hopeless|worthless|can'?t cope|cant cope|giving up|nothing matters|no point)\b/i, emotion: 'sad' },
+  { re: /\b(i feel|i'?m|im)\s+(anxious|nervous|worried|scared|afraid)\b/i, emotion: 'anxious' },
+  { re: /\b(on edge|racing heart|can'?t calm|cant calm|panic attack)\b/i, emotion: 'anxious' },
+  { re: /\b(so lonely|feel alone|nobody (?:gets|understands)|isolated)\b/i, emotion: 'lonely' },
+];
+
 const CRISIS_KEYWORDS = ['suicide', 'kill myself', 'end my life', 'want to die', 'hurt myself', 'self harm'];
 
-function getEmotionFromText(text) {
-  if (!text || typeof text !== 'string') return null;
+/**
+ * Local text emotion (when ML API is off or fails). Always returns a label so prompts/fallbacks stay consistent.
+ */
+function detectEmotionFromText(text) {
+  if (!text || typeof text !== 'string') return 'neutral';
   const lower = text.toLowerCase().trim();
+  for (const { re, emotion } of EMOTION_REGEX_RULES) {
+    if (re.test(lower)) return emotion;
+  }
   for (const { keywords, emotion } of KEYWORD_MAP) {
     if (keywords.some((k) => lower.includes(k))) return emotion;
   }
-  return null;
+  return 'neutral';
+}
+
+/**
+ * Lightweight intent so replies match thanks, plans, and help-seeking—not only emotion labels.
+ * Order: gratitude + plan together before either alone.
+ */
+function detectIntent(text) {
+  const lower = (text || '').toLowerCase().trim();
+  if (!lower) return 'general';
+  const hasThanks =
+    /\b(thanks?|thank you|much appreciated|appreciate it|grateful)\b/i.test(lower) ||
+    /\bthank you for\b/i.test(lower);
+  const hasCommitment =
+    /\b(i'?ll|i will|i am going to|i'?m going to|going to|gonna)\b/i.test(lower) ||
+    /\b(will put|put up|putting up|will (?:try|do|call|go))\b/i.test(lower);
+  if (hasThanks && hasCommitment) return 'gratitude_commitment';
+  if (hasThanks) return 'gratitude';
+  if (hasCommitment) return 'commitment';
+  if (/\b(what (?:should|can|do) i|how (?:do|can|should) i|need (?:help|advice)|any advice|can you help)\b/i.test(lower)) {
+    return 'seeking_help';
+  }
+  if (/^(yes|yeah|yep|yup|ok|okay|sure|alright)\b[!.?\s]*$/i.test(lower) || /^(\s*)(yes|ok|okay)\b/i.test(lower)) {
+    return 'agreement';
+  }
+  return 'general';
 }
 
 function isCrisisMessage(text) {
@@ -91,8 +136,7 @@ function getEmotionalHistory(history) {
   const emotions = [];
   for (const m of history) {
     if (m.role === 'user' && (m.text || m.content)) {
-      const e = getEmotionFromText(m.text || m.content);
-      emotions.push(e || 'neutral');
+      emotions.push(detectEmotionFromText(m.text || m.content));
     }
   }
   return emotions;
@@ -186,19 +230,82 @@ function isExamAcademicStressScenario(text, history = []) {
   return /\b(exam|exams|final|midterm|test|tests|stud(y|ying|ied)|assignment|gpa|grade|marks|semester|unprepared|revision|course|class)\b/.test(blob);
 }
 
+/** User is angry or upset with someone close (parent, partner, friend)—guides LLM tone when OPENAI is on. */
+function isRelationalAngerScenario(text, history = []) {
+  const userBits = (history || [])
+    .filter((m) => m.role === 'user' && (m.text || m.content))
+    .slice(-6)
+    .map((m) => (m.text || m.content || '').toLowerCase())
+    .join(' ');
+  const blob = `${userBits} ${(text || '').toLowerCase()}`;
+  const hasRel = /\b(parents?|mom|mother|dad|father|boyfriend|girlfriend|partner|husband|wife|friend|friends)\b/.test(blob);
+  const hasAnger = /\b(angry|mad|furious|resent|frustrat|annoyed|pissed|rage|fed up|so done|hate him|hate her|can't stand|cant stand)\b/.test(blob);
+  return hasRel && hasAnger;
+}
+
+function buildEmotionMandate(emotion, intent = 'general') {
+  const e = String(emotion || 'neutral').toLowerCase();
+  const label = e.toUpperCase();
+  const toneHints = {
+    sad: 'Lead with validation and gentle comfort. Name the heaviness without minimizing it. Offer warmth and a soft, open question.',
+    stress: 'Acknowledge pressure and overwhelm. Normalize struggle; suggest tiny, doable steps; avoid toxic positivity.',
+    anxious: 'Slow the pace verbally; validate worry and bodily stress. Offer grounding without sounding clinical.',
+    angry: 'Stay calm; validate that anger often signals something important. Do not escalate or moralize.',
+    happy: 'Match a warm, encouraging tone; reinforce what is going well without dismissing past difficulty.',
+    lonely: 'Acknowledge isolation; emphasize that reaching out matters. Invite connection without pressure.',
+    tired: 'Honor fatigue; permission to rest. Keep demands low.',
+    fear: 'Acknowledge fear clearly; safety and pacing matter. One gentle clarifying question if useful.',
+    neutral: 'Still be warm and attentive—avoid generic filler. Reflect what they actually said.',
+  };
+  const hint = toneHints[e] || toneHints.neutral;
+  const gratitudeSoft =
+    intent === 'gratitude' ||
+    intent === 'gratitude_commitment' ||
+    intent === 'agreement';
+  const openLine = gratitudeSoft
+    ? 'If the user is primarily thanking you, agreeing, or describing a plan, lead with that—not a generic mood check. Otherwise, acknowledge emotional tone clearly.'
+    : 'Open by clearly acknowledging this emotional tone (without repeating the same line every turn if history shows you already validated).';
+  return `\n\nEmotion-aware response rules (mandatory):
+The user is feeling: ${label}.
+
+You MUST:
+- ${openLine}
+- Respond with empathy and emotional intelligence—not generic reassurance that could apply to any message.
+- Follow this tone guidance: ${hint}
+- Do not sound robotic, dismissive, or purely informational unless they asked for facts.`;
+}
+
+function buildIntentMandate(intent) {
+  const i = String(intent || 'general').toLowerCase();
+  const blocks = {
+    gratitude: `Intent: GRATITUDE. The user is thanking you or expressing appreciation. Respond warmly and sincerely. Do NOT respond with generic distress comfort ("that sounds draining", "be gentle with yourself") unless they are clearly still in acute distress in this message. Keep it short and human.`,
+    gratitude_commitment: `Intent: GRATITUDE + COMMITMENT. They thank you AND describe a next step (e.g. posters, calling someone). Acknowledge thanks first, then encourage their specific plan—reference it in your own words. Do not re-offer the same advice they already accepted.`,
+    commitment: `Intent: COMMITMENT / FORWARD ACTION. They state something they will do. Encourage that concrete action; validate the step. Avoid unrelated emotional lectures.`,
+    seeking_help: `Intent: SEEKING HELP. They want guidance. Offer practical, gentle suggestions tied to what they asked. You may blend support with one or two clear ideas.`,
+    agreement: `Intent: AGREEMENT / AFFIRMATION. Short acknowledgment—mirror their readiness, offer to stay available. Do not over-process emotionally.`,
+    general: `Intent: GENERAL. Infer topic and emotional need from their words and the thread; stay on-topic.`,
+  };
+  const body = blocks[i] || blocks.general;
+  return `\n\nIntent-aware rules (priority): ${body}\nIf these intent rules conflict with a generic emotion-only reply, follow the intent rules for this turn.`;
+}
+
 function buildSystemPrompt(
   emotion,
   isCrisis,
   emotionalHistory = [],
   text = '',
   history = [],
-  memoryContext = {}
+  memoryContext = {},
+  intent = 'general'
 ) {
   const base = `You are a supportive, empathetic mental health companion. You provide emotional support and listen without judgment. You are NOT a therapist or doctor—do not diagnose or prescribe. If someone is in crisis or mentions self-harm or suicide, encourage them to contact a crisis helpline (e.g. Sumithrayo 1926 in Sri Lanka) and a professional. Keep responses concise (2–4 short paragraphs max), warm, and natural. Use "you" and "I" naturally. Do not use bullet points or formal lists unless helpful.
 
 Generative model (critical): You are a generative model—you compose original language for each turn. You do NOT retrieve, match, or copy lines from a fixed dialogue database or script. Do not behave like search-over-templates: infer meaning, emotion, and scenario from the user's words and conversation history, then generate a new response. This is the same idea as GPT, T5, or LLaMA-style generation, not lookup.
 
 Novel inputs: Situations may not appear verbatim in any training-style list. That is normal. Generate a fresh, empathetic reply; validate feelings; offer gentle support and, if helpful, one open question. Never refuse because something was "not in your data" or "not in training."`;
+
+  const emotionMandate = buildEmotionMandate(emotion, intent);
+  const intentMandate = buildIntentMandate(intent);
 
   let contextBlock = '';
   if (emotionalHistory.length > 0) {
@@ -207,7 +314,7 @@ Novel inputs: Situations may not appear verbatim in any training-style list. Tha
 - Emotional history this conversation (oldest to newest): ${historyStr}.
 - Current message emotion: ${emotion || 'neutral'}.
 Dynamically adjust your tone and content: acknowledge the emotional trajectory if it has changed, reference what they shared earlier when relevant, and offer continuity (e.g. "You mentioned...", "Last time you said..."). Avoid repeating the same advice; build on the conversation. Offer more personalized and empathetic responses based on this context.`;
-  } else if (emotion) {
+  } else if (emotion && emotion !== 'neutral') {
     contextBlock = `\n\nThe user appears to be feeling: ${emotion}. Adapt your tone and response to be contextually appropriate and empathetic for this emotional state.`;
   }
 
@@ -218,6 +325,10 @@ Dynamically adjust your tone and content: acknowledge the emotional trajectory i
     if (examIntensity === 'high' || examTurns >= 3) level = 'high';
     else if (examIntensity === 'medium' || examTurns >= 2) level = 'medium';
     contextBlock += `\n\nExam / study stress (scenario: exam_stress): Use an empathetic listener style—validate first (e.g. that the pressure feels overwhelming), normalize anxiety about memory and performance, gently separate self-worth from one exam when they fear failure or disappointing family. Offer light coping (short breaks, self-kindness) without sounding preachy. Estimated intensity for this turn: ${level}. User messages in this chat touching exam/study stress recently: about ${examTurns}. If intensity is medium or high, or they have brought this up multiple times, offer slightly deeper reassurance and acknowledge that the worry has been building.`;
+  }
+
+  if (isRelationalAngerScenario(text, history)) {
+    contextBlock += `\n\nRelational anger (parents / partner / friend): The user may be upset with someone close to them. Validate the hurt underneath the anger; do not push instant forgiveness or blame them for feeling mad. Stay calm and curious—one open question about what happened or what they need. Avoid harshly taking sides against the other person; focus on their feelings, boundaries, and safety (including emotional safety). If they fear saying something they regret, normalize pausing before a hard conversation.`;
   }
 
   const mc = memoryContext || {};
@@ -252,16 +363,16 @@ Dynamically adjust your tone and content: acknowledge the emotional trajectory i
   const tailBlocks = memoryBlock + multiTurnBlock + personalizeBlock;
 
   if (isCrisis) {
-    return `${base}\n\nImportant: The user's message may indicate a crisis. Prioritize safety: express care, validate feelings, and strongly encourage contacting a crisis helpline or trusted person. Be calm and supportive.${contextBlock}${tailBlocks}`;
+    return `${base}${emotionMandate}${intentMandate}\n\nImportant: The user's message may indicate a crisis. Prioritize safety: express care, validate feelings, and strongly encourage contacting a crisis helpline or trusted person. Be calm and supportive.${contextBlock}${tailBlocks}`;
   }
-  return base + contextBlock + tailBlocks;
+  return base + emotionMandate + intentMandate + contextBlock + tailBlocks;
 }
 
 // ----- Emotion API (IEMOCAP-based voice + text) -----
 const EMOTION_API_URL = process.env.EMOTION_API_URL || '';
 
-/** When false, fallback chain skips IEMOCAP string retrieval (pure rules + empathy pool). */
-const USE_IEMOCAP_RETRIEVAL = !/^(0|false|no|off)$/i.test(String(process.env.USE_IEMOCAP_RETRIEVAL ?? 'true').trim());
+/** Default off: IEMOCAP scripted lines are poor as a general answer bank. Set USE_IEMOCAP_RETRIEVAL=true to opt in. */
+const USE_IEMOCAP_RETRIEVAL = /^(1|true|yes|on)$/i.test(String(process.env.USE_IEMOCAP_RETRIEVAL || '').trim());
 
 // ----- Fallback when LLM fails (e.g. 429 quota) -----
 const CRISIS_RESPONSES = [
@@ -274,6 +385,69 @@ const TOPIC_KEYWORDS = [
   { keywords: ['exam', 'exams', 'test', 'tests', 'study', 'studying', 'assignment', 'project', 'grade', 'marks', 'university', 'college', 'school'], topic: 'exam' },
   { keywords: ['work', 'job', 'office', 'boss', 'colleague', 'career', 'deadline', 'meeting', 'salary', 'promotion'], topic: 'work' },
   { keywords: ['going to other country', 'going to another country', 'going abroad', 'going overseas', 'going away', 'leaving for', 'went to another', 'went to other country', 'moved to another', 'flying to', 'flying overseas', 'moving abroad', 'moving overseas', 'i am flying', 'im flying', 'i will fly', 'father going', 'mother going', 'mom going', 'dad going', 'brother going', 'sister going', 'husband going', 'wife going', 'son going', 'daughter going', 'parent going', 'spouse going', 'partner going', 'family member going', 'loved one going'], topic: 'family_separation' },
+  // Relational anger — match before generic family/relationship so fallbacks validate the situation
+  {
+    keywords: [
+      'angry at my parents',
+      'mad at my parents',
+      'furious at my parents',
+      'angry with my parents',
+      'mad with my parents',
+      'angry at my mom',
+      'mad at my mom',
+      'angry at my dad',
+      'mad at my dad',
+      'angry at my mother',
+      'mad at my mother',
+      'angry at my father',
+      'mad at my father',
+      'fight with my parents',
+      'fought with my parents',
+      'argued with my parents',
+      'argument with my parents',
+      'parents make me so angry',
+      'my parents make me angry',
+    ],
+    topic: 'angry_at_parents',
+  },
+  {
+    keywords: [
+      'angry at my boyfriend',
+      'mad at my boyfriend',
+      'angry at my girlfriend',
+      'mad at my girlfriend',
+      'angry at my partner',
+      'mad at my partner',
+      'angry at my husband',
+      'mad at my husband',
+      'angry at my wife',
+      'mad at my wife',
+      'fight with my boyfriend',
+      'fight with my girlfriend',
+      'fought with my boyfriend',
+      'fought with my girlfriend',
+      'argued with my boyfriend',
+      'argued with my girlfriend',
+    ],
+    topic: 'angry_at_partner',
+  },
+  {
+    keywords: [
+      'angry at my friend',
+      'mad at my friend',
+      'angry with my friend',
+      'mad with my friend',
+      'angry at a friend',
+      'mad at a friend',
+      'fight with my friend',
+      'fought with my friend',
+      'argued with my friend',
+      'argument with my friend',
+      'so done with my friend',
+      'my friend makes me angry',
+    ],
+    topic: 'angry_at_friend',
+  },
   { keywords: ['family', 'parents', 'mother', 'father', 'mom', 'dad', 'sibling', 'brother', 'sister', 'child', 'children', 'kid', 'relationship with family'], topic: 'family' },
   { keywords: ['boyfriend', 'girlfriend', 'partner', 'relationship', 'breakup', 'divorce', 'dating', 'love'], topic: 'relationship' },
   { keywords: ['father is sick', 'mother is sick', 'father sick', 'mother sick', 'parent sick', 'parent is sick', 'sibling sick', 'spouse sick', 'husband sick', 'wife sick', 'child sick', 'family member sick', 'someone close is sick', 'loved one sick'], topic: 'someone_sick' },
@@ -291,6 +465,32 @@ const TOPIC_KEYWORDS = [
   { keywords: ['nobody likes', 'rejected', 'friends left', 'excluded', 'left out', 'dont fit in', "don't fit in", 'people avoid'], topic: 'rejection_social' },
   { keywords: ['lost my job', 'fired', 'laid off', 'unemployed', 'job loss', 'got fired', 'lost job'], topic: 'job_loss' },
   { keywords: ['bullied', 'bullying', 'picked on', 'people are mean', 'they mock', 'teasing me'], topic: 'bullying' },
+  // Regret / repair after hurting someone — before conflict_fight so follow-ups are not re-labeled as generic "arguments"
+  {
+    keywords: [
+      "didn't mean",
+      'didnt mean',
+      'not talking to me',
+      'not talking to',
+      "won't talk to me",
+      'wont talk to me',
+      'ignoring me',
+      'ignore me',
+      'silent treatment',
+      'they wont talk',
+      "they won't talk",
+      'regret saying',
+      'sorry for what i said',
+      'hurt their feelings',
+      'messed up what i said',
+      'wish i could take it back',
+      'wish i hadnt said',
+      "wish i hadn't said",
+      'scared i lost',
+      'afraid i lost my friend',
+    ],
+    topic: 'friendship_repair',
+  },
   { keywords: ['had a fight', 'we argued', 'big argument', 'fought with', 'fight with', 'we had a fight'], topic: 'conflict_fight' },
   { keywords: ['disappointed', 'didnt work out', "didn't work out", 'let down', 'disappointment', 'things didnt go'], topic: 'disappointment' },
   { keywords: ['cant stop thinking', "can't stop thinking", 'overthinking', 'racing thoughts', 'mind wont stop', "mind won't stop", 'cant shut off'], topic: 'overthinking' },
@@ -305,6 +505,27 @@ const TOPIC_RESPONSES = {
   exam: ["Exams can be really overwhelming. You're not alone in feeling this way. What would help—breaking it into smaller parts, or talking through what's stressing you most?", "I hear you. Study pressure is real. Remember, your worth isn't measured by one exam. What subject or part feels hardest right now?", "That sounds tough. It might help to take short breaks and be kind to yourself. Would you like to talk about what's making it feel so heavy?"],
   work: ["Work stress can drain us. You're doing your best. What would help—venting about it, or thinking of one small thing you could change?", "I understand. Job pressure is real. Is there a specific situation that's weighing on you most?", "That sounds exhausting. It's okay to need a break. What would give you some relief right now—talking it out, or stepping back for a moment?"],
   family_separation: ["I understand—it's really hard when someone you love leaves. Take a deep breath. Your feelings are valid. Whether they're going overseas or you are, you'll see each other again. Try to stay calm—you're not alone. I'm here to listen. How long will the separation be?", "I hear you. Saying goodbye is painful. Remember to breathe. It's okay to feel sad. They will come back, and you'll be together again. Try to relax your mind—things will be okay. Would you like to talk? I'm here for you.", "That must be tough. When someone leaves, it hurts. Your feelings matter. Take a moment to breathe. You'll reunite—until then, we can chat anytime. You're going to be okay. How are you holding up?"],
+  angry_at_parents: [
+    "It makes sense you'd feel angry when things with your parents feel unfair or hurtful—that usually means something important is at stake for you. I'm not here to take sides. What happened that stirred this up most?",
+    "Anger toward family can feel messy and heavy, especially when you still care underneath. Your feelings are valid. Would it help to vent a little about what they did—or what keeps replaying in your mind?",
+    "When parents push our buttons, it can hit harder than other conflicts. You're allowed to be mad and still want things to get better. What would feel safest to do next—say something to them, write it down first, or cool off for a bit?",
+    "I'm glad you're saying this here. Being furious at people we're supposed to be close to can bring guilt on top of anger—you don't have to sort that alone. What part of this sits with you the heaviest right now?",
+    "Family arguments often carry a long history. If you're angry today, there's usually a story behind it. What would you want them to understand about how you're feeling, even if you're not ready to say it yet?",
+  ],
+  angry_at_partner: [
+    "Anger toward someone you're close to—like a partner—often comes from feeling let down or unheard. That doesn't make you wrong for feeling it. What happened between you two that's sitting with you most?",
+    "It sounds like something really upset you in the relationship. I'm here to listen without judgment. Do you want to vent, or talk through what you might need from them when you're calmer?",
+    "When a boyfriend, girlfriend, or partner crosses a line—or keeps doing the same thing—anger is a natural response. You don't have to pretend you're fine. What would feel fair to you in this situation?",
+    "It's thoughtful to notice if you might say something you regret in the heat of the moment. Taking a little space before responding can help you say what you truly mean. Do you feel like you want to express this to them soon, or do you need time first?",
+    "Relationship conflict can stir up a lot at once—hurt, anger, maybe fear about the future. You don't have to fix it all in one conversation. What's one thing you wish they understood about how you're feeling right now?",
+  ],
+  angry_at_friend: [
+    "Fights or bad blood with a friend can hurt a lot—especially when you trusted them. Your anger makes sense. What happened from your side? I'm listening.",
+    "It's rough when a friend does something that feels disrespectful or careless. You can care about them and still be furious. What would feel most honest to get off your chest right now?",
+    "Sometimes friend conflicts bring up guilt too—like you 'shouldn't' be this mad. Your feelings still count. Would it help to talk through what they did and what you might want next (space, an honest talk, or something else)?",
+    "When you're done with how they're acting, that anger can be protective—saying a boundary matters. You don't have to decide the whole friendship tonight. What would feel kindest to yourself in the next day or two?",
+    "I hear you. Arguments with friends can feel like they shake the whole relationship. What part is weighing on you most—the specific thing that happened, or how things feel between you now?",
+  ],
   family: ["Family issues can be really painful. I'm here to listen. Would you like to share what's going on?", "I hear you. Family dynamics are complex. You're allowed to feel how you feel. What's the hardest part right now?", "That sounds difficult. It's brave of you to reach out. What would feel helpful—talking through it, or just being heard?"],
   relationship: ["Relationship struggles hurt. I'm here for you. Would you like to talk about what's going on?", "I hear you. It's okay to feel upset. What would help—venting, or thinking about what you need from this situation?", "That sounds really tough. You're not alone. What would feel supportive right now?"],
   someone_sick: ["I'm so sorry to hear someone close to you is sick. Take a deep breath. It's natural to feel scared and worried. Try to stay calm—your love and care mean a lot to them. You're not alone. I'm here. Would you like to talk about it? Breathe slowly; things will be okay.", "I hear you. When a family member or loved one is ill, it's really hard. Your feelings are valid. Try to relax your mind—you're doing what you can. They're in good hands with you by their side. I'm here whenever you need to talk.", "That must be so worrying. When someone we love is sick, our minds can race. Take a moment to breathe. Stay calm—your presence and care matter. You're not alone in this. I'm here to listen. How are you holding up?"],
@@ -322,7 +543,22 @@ const TOPIC_RESPONSES = {
   rejection_social: ["Feeling rejected or left out hurts a lot. I hear you. Would you like to talk about what happened? You matter, regardless of how others act.", "That sounds really painful. Connection and belonging matter—and you deserve both. What would feel supportive right now?", "I'm sorry you're going through this. Rejection can make us question ourselves, but it says more about the situation than about you. Want to talk about it?"],
   job_loss: ["Losing a job is a huge blow—to your routine, identity, and security. I'm sorry. How are you coping? It's okay to feel whatever you're feeling.", "That's really hard. Job loss can trigger a lot of emotions. Would it help to talk through it, or brainstorm one small next step?", "I hear you. This is a difficult transition. Be gentle with yourself. What would feel helpful right now—venting, or thinking about what comes next?"],
   bullying: ["I'm sorry you're going through that. Nobody deserves to be treated that way. How long has this been going on? Would it help to talk about it?", "Bullying can make you feel small and alone. You're not—and reaching out here takes courage. What would feel supportive right now?", "That sounds really tough. Have you been able to talk to anyone you trust about it? I'm here to listen."],
-  conflict_fight: ["Fights and arguments can leave us shaken. What happened? Sometimes just talking it through helps.", "Conflict is exhausting. It's okay to feel upset or confused. Would you like to vent, or think about how to repair things?", "I hear you. Arguments often come from both sides caring. What would help right now—getting it off your chest, or working through it?"],
+  friendship_repair: [
+    "It makes sense you'd feel awful after saying something you didn't mean—especially when someone you care about goes quiet. That silence can feel scary. You're not a bad person for slipping up; it means the friendship matters. When you're ready, would a short, honest message (or a note) feel possible, or is it still too raw?",
+    "Carrying regret when they're not answering is really heavy. You can feel guilty *and* still deserve a chance to repair things. I'm not here to push you either way—just to say your feelings are valid. What part hurts most: the words you used, or the distance right now?",
+    "I'm sorry you're in this limbo. Wanting to take words back usually means you care about how they felt. If they need space, that can hurt even when it's understandable. Is there one thing you'd want them to know about what you were feeling when you said it?",
+    "That sounds painful—regret plus someone pulling away is a lot at once. You're allowed to feel sad or anxious about it. If you want to practice wording for an apology that feels true to you (no pressure), I can help you think it through.",
+    "When someone we love stops talking to us, our minds often spiral. Whatever you're imagining, your pain right now is real. You don't have to figure out the whole repair tonight—sometimes just naming what you wish you'd said differently helps a little. What would you want them to hear from you?",
+  ],
+  conflict_fight: [
+    "Fights and arguments can leave us shaken—especially with someone close. Feeling really bad afterward is a natural sign you care. What happened from your side? I'm listening.",
+    "It sounds like you're hurting after this clash with your friend. Conflict can stir up guilt, anger, and fear all at once. You don't have to sort it alone—what would help most: getting it off your chest, or thinking about a small step toward making things right?",
+    "Arguments with people we trust can hit harder than other stress. It's okay to feel low or wired after. What part is sitting with you the heaviest right now—the fight itself, or how things feel between you now?",
+    "I hear how rough this is. When we care about someone, fights can feel like they shake the whole friendship. Your feelings about it matter. Would it help to talk through what led up to it, or how you're feeling toward them today?",
+    "That sounds really painful. You and your friend both have real feelings here—even when things got heated. What would feel kindest to yourself in the next day or two while emotions are still high?",
+    "Sometimes after a fight we replay every word. That doesn't mean you're broken—it means this relationship matters to you. If you want, we can go gently: what do you wish had gone differently in that moment?",
+    "I hear you. Arguments often come from both sides caring—sometimes care shows up messy. What would help right now—venting, or thinking through what you might want to say when you're both calmer?",
+  ],
   disappointment: ["Disappointment is heavy. It's okay to sit with it. Would you like to talk about what didn't work out?", "I hear you. When things don't go as hoped, it can feel like a letdown. What would feel helpful—talking it through, or just being heard?", "That sounds hard. Disappointment is valid. Sometimes the best we can do is acknowledge it. Want to share what happened?"],
   overthinking: ["Racing thoughts are exhausting. You're not alone. Would it help to try a grounding exercise—name 3 things you see, 2 you hear, 1 you can touch?", "I hear you. When your mind won't stop, it can feel overwhelming. What's one small thing that sometimes helps you slow down?", "Overthinking can spiral. It's brave to notice it. Would talking it out help, or do you need to shift focus for a bit?"],
   irritable: ["Feeling irritable and on edge is draining. It often means we're carrying too much. What's been going on lately?", "I hear you. When everything annoys us, something underneath is usually going on. Would it help to talk about it?", "That short fuse can be exhausting. Be gentle with yourself. What would give you a bit of relief right now?"],
@@ -444,6 +680,19 @@ const THANKS_RESPONSES = [
   "Thank you for chatting with me. I hope our conversation helped a little. Remember, reaching out is a strength. I'm here whenever you need. Take care.",
 ];
 
+/** Rule-based path when the message includes thanks and/or a plan but is not a pure short thanks line (see isThanks). */
+const GRATITUDE_COMMITMENT_FALLBACK = [
+  "You're very welcome — I'm glad that felt helpful. It sounds like you're taking a concrete step; I hope it works out and you get good news soon.",
+  "Thank you for saying that; it means a lot. Wishing you the best with your next step — I'm rooting for you.",
+  "I'm really glad I could help a little. You're doing something proactive, and that matters. Come back anytime if you want to talk more.",
+];
+
+const GRATITUDE_ONLY_FALLBACK = [
+  "You're welcome — I'm glad you reached out. I'm here whenever you need.",
+  "Thank you for saying that. Take care, and feel free to come back anytime.",
+  "That means a lot. I'm here if you want to talk more later.",
+];
+
 // IEMOCAP: only use responses suitable for mental health support (exclude drama/bureaucracy scripts)
 const IEMOCAP_BLOCKLIST = ['brandy', 'bored stiff', 'day care', 'supervisor', 'direct line', 'rigmarole', 'z.x.four', 'passport', 'birth certificate', 'bank account', 'overdue fee', 'statement in a few days', 'put that into the computer', 'we keep it on file', 'fill out', 'this form', 'different form of id', 'get in this line', 'do you have your forms', 'wallet was stolen', 'try to do that for you', 'i can try to do'];
 
@@ -550,6 +799,13 @@ function getFallbackResponse(text, emotion, history = [], _memoryContext = {}) {
   if (isCrisisMessage(text)) return CRISIS_RESPONSES[Math.floor(Math.random() * CRISIS_RESPONSES.length)];
   if (isGreeting(text)) return GREETING_RESPONSES[Math.floor(Math.random() * GREETING_RESPONSES.length)];
   if (isThanks(text)) return THANKS_RESPONSES[Math.floor(Math.random() * THANKS_RESPONSES.length)];
+  const intent = detectIntent(trimmed);
+  if (intent === 'gratitude_commitment') {
+    return GRATITUDE_COMMITMENT_FALLBACK[Math.floor(Math.random() * GRATITUDE_COMMITMENT_FALLBACK.length)];
+  }
+  if (intent === 'gratitude') {
+    return GRATITUDE_ONLY_FALLBACK[Math.floor(Math.random() * GRATITUDE_ONLY_FALLBACK.length)];
+  }
   const contextText = getContextText(history) + ' ' + trimmed;
   const topic = getTopicFromText(trimmed) || getTopicFromText(contextText);
   if (topic === 'exam') {
@@ -581,15 +837,48 @@ async function getEmotionFromAPI(text, audioBase64) {
   }
 }
 
+function formatUserMessageForLLM(rawText, emotionLabel, intentLabel = 'general') {
+  const t = (rawText || '').trim();
+  const em = String(emotionLabel || 'neutral').toLowerCase();
+  const intent = String(intentLabel || 'general').toLowerCase();
+  return `Emotion: ${em}\nIntent: ${intent}\nMessage: ${t}`;
+}
+
+/** System + history + current turn, with emotion + intent on every user line for the LLM. */
+function buildOpenAIMessages(systemPrompt, history, currentText, currentEmotion, currentIntent) {
+  const out = [{ role: 'system', content: systemPrompt }];
+  for (const m of history.slice(-12)) {
+    const raw = m.text || m.content || '';
+    if (m.role === 'user') {
+      out.push({
+        role: 'user',
+        content: formatUserMessageForLLM(raw, detectEmotionFromText(raw), detectIntent(raw)),
+      });
+    } else {
+      out.push({ role: 'assistant', content: raw });
+    }
+  }
+  out.push({ role: 'user', content: formatUserMessageForLLM(currentText, currentEmotion, currentIntent) });
+  return out;
+}
+
 async function computeChatReply(text, history, audioBase64, memoryContext = {}) {
   const apiKey = process.env.OPENAI_API_KEY;
   let emotion = null;
+  let emotionSource = 'heuristic';
   if (EMOTION_API_URL && (text || audioBase64)) {
     emotion = await getEmotionFromAPI(text, audioBase64);
+    if (emotion != null && String(emotion).trim() !== '') emotionSource = 'emotion_api';
   }
-  if (emotion == null) {
-    emotion = getEmotionFromText(text);
+  if (emotion == null || String(emotion).trim() === '') {
+    emotion = detectEmotionFromText(text);
+    emotionSource = 'heuristic';
+  } else {
+    emotion = String(emotion).toLowerCase().trim();
   }
+
+  const intent = detectIntent(text);
+  console.log('[chat] Detected emotion:', emotion, `(source: ${emotionSource})`, '| intent:', intent);
 
   const memoryMerged = {
     ...memoryContext,
@@ -602,27 +891,21 @@ async function computeChatReply(text, history, audioBase64, memoryContext = {}) 
   }
 
   if (!apiKey) {
+    console.warn('[chat] No OPENAI_API_KEY — using rule-based fallback (not generative).');
     const fallback = getFallbackResponse(text, emotion, history, memoryMerged);
     return { reply: fallback, emotion: emotion || undefined, fallback: true };
   }
 
   const crisis = isCrisisMessage(text);
   const emotionalHistory = getEmotionalHistory(history);
-  const systemPrompt = buildSystemPrompt(emotion, crisis, emotionalHistory, text, history, memoryMerged);
+  const systemPrompt = buildSystemPrompt(emotion, crisis, emotionalHistory, text, history, memoryMerged, intent);
   const openaiBaseURL = (process.env.OPENAI_BASE_URL || '').trim();
   const openai = new OpenAI({
     apiKey,
     ...(openaiBaseURL ? { baseURL: openaiBaseURL } : {}),
   });
 
-  const messages = [
-    { role: 'system', content: systemPrompt },
-    ...history.slice(-12).map((m) => ({
-      role: m.role === 'user' ? 'user' : 'assistant',
-      content: m.text || m.content,
-    })),
-    { role: 'user', content: text },
-  ];
+  const messages = buildOpenAIMessages(systemPrompt, history, text, emotion, intent);
 
   try {
     const completion = await openai.chat.completions.create({
@@ -759,6 +1042,13 @@ app.get('/api/health', (_, res) => {
 
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
+  if (!EMOTION_API_URL) {
+    console.warn(
+      'EMOTION_API_URL not set. Text/voice emotion uses local heuristics only. For ML emotion (train_text_emotion.py), run ml/app.py and set EMOTION_API_URL (e.g. http://localhost:5002).'
+    );
+  } else {
+    console.log('Emotion API:', EMOTION_API_URL);
+  }
   if (!process.env.OPENAI_API_KEY) {
     console.warn('OPENAI_API_KEY not set. Set it in server/.env to enable generative (GPT/compatible) responses.');
   } else if ((process.env.OPENAI_BASE_URL || '').trim()) {
@@ -766,8 +1056,8 @@ app.listen(PORT, () => {
   } else {
     console.log('Generative API: OpenAI. Model:', process.env.OPENAI_MODEL || 'gpt-4o-mini');
   }
-  if (!USE_IEMOCAP_RETRIEVAL) {
-    console.log('IEMOCAP retrieval disabled in fallback (USE_IEMOCAP_RETRIEVAL).');
+  if (USE_IEMOCAP_RETRIEVAL) {
+    console.log('IEMOCAP line retrieval enabled in fallback (USE_IEMOCAP_RETRIEVAL=true).');
   }
   if (!process.env.JWT_SECRET) {
     console.warn('JWT_SECRET not set. Using a dev default; set JWT_SECRET in server/.env for production.');

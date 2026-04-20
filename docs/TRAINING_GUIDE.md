@@ -50,11 +50,15 @@ python ml/train_ser.py
 **Run:**
 
 ```powershell
-cd D:\My Research Project\my-research
+cd "D:\My Research Project\my-research"
 python ml/train_text_emotion.py
 ```
 
-**Output:** `ml/models/text_emotion/` — restart **uvicorn** (`ml/app.py`); health shows `text_emotion_model_loaded: true`. Text then uses the **neural** classifier; **speech** still uses **SER** (joblib). Add more rows to the CSV or use GoEmotions-style data for stronger text-focused research.
+**More text data (GoEmotions, etc.):** run `python ml/preprocess_external_datasets.py` (see README), then:
+
+`python ml/train_text_emotion.py --extra-csv ml/data/processed/goemotions_for_text_emotion.csv`
+
+**Output:** `ml/models/text_emotion/` — restart **uvicorn** (`ml/app.py`); health shows `text_emotion_model_loaded: true`. Text then uses the **neural** classifier; **speech** still uses **SER** (joblib). Add more rows to the augment CSV or use processed Hub data for stronger text-focused research.
 ---
 
 ## 3. Response Selection – Matching User to Reply
@@ -77,9 +81,9 @@ python ml/train_text_emotion.py
 
 **Goal:** Better replies when the user’s exact words are **not** in IEMOCAP or fixed rules.
 
-1. Add or edit lines in **`ml/data/empathic_support_train.jsonl`** (each line: `{"messages":[{"role":"system"|"user"|"assistant","content":"..."}, ...]}`).
+1. Add or edit lines in **`ml/data/empathic_support_train.jsonl`** (each line: `{"messages":[{"role":"system"|"user"|"assistant","content":"..."}, ...]}`), and/or build **`ml/data/processed/merged_empathic_support_train.jsonl`** with `ml/preprocess_external_datasets.py --merge-base ...` (EmpatheticDialogues mirror + CounselChat).
 2. Install training deps: `pip install -r ml/requirements.txt -r ml/requirements-train.txt`
-3. Run: `python ml/finetune_lora_support.py --model Qwen/Qwen2.5-0.5B-Instruct --epochs 3`
+3. Run: `python ml/finetune_lora_support.py --model Qwen/Qwen2.5-0.5B-Instruct --epochs 3` (add `--data ml/data/processed/merged_empathic_support_train.jsonl` if you merged public dialogue into one file).
 4. Serve the merged model or adapter via an **OpenAI-compatible** API and set **`OPENAI_BASE_URL`** in `server/.env`.
 
 ---

@@ -4,6 +4,36 @@ import './Chat.css';
 
 const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
 
+function VoiceMicIcon() {
+  return (
+    <svg className="chat-mic-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+      <path
+        d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M19 10v2a7 7 0 0 1-14 0v-2"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path d="M12 19v4M8 23h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function VoiceStopIcon() {
+  return (
+    <svg className="chat-mic-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+      <rect x="7" y="7" width="10" height="10" rx="1.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 // welcome messgae for my chetbot
 const WELCOME_MESSAGE = {
   id: 'welcome',
@@ -256,7 +286,7 @@ function Chat({ authToken, userEmail, onLogout }) {
               Log out
             </button>
           )}
-          <span className="chat-header-badge">Research · MCS 3204</span>
+          {/* <span className="chat-header-badge">Research · MCS 3204</span> */}
         </div>
       </div>
 
@@ -311,7 +341,7 @@ function Chat({ authToken, userEmail, onLogout }) {
           title={SpeechRecognitionAPI ? (isListening ? 'Stop listening' : 'Speak your message') : 'Voice not supported'}
         >
           <span className="chat-mic-icon" aria-hidden>
-            {isListening ? '⏹' : '🎤'}
+            {isListening ? <VoiceStopIcon /> : <VoiceMicIcon />}
           </span>
         </button>
         <button
@@ -329,9 +359,9 @@ function Chat({ authToken, userEmail, onLogout }) {
         </p>
       )}
 
-      <p className="chat-disclaimer">
+      {/* <p className="chat-disclaimer">
         This is a supportive companion, not a substitute for professional care. If you're in crisis, please contact a helpline (e.g. Sumithrayo 1926).
-      </p>
+      </p> */}
     </div>
   );
 }

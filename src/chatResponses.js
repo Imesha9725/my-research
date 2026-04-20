@@ -29,6 +29,24 @@ const EMOTION_RESPONSES = {
     "Anger is a valid emotion. It often comes from something that matters to us. Would you like to talk about what's behind it?",
     "I get it—sometimes we just need to feel heard. You're in a safe space here. What happened?",
     "It's okay to feel angry. What would feel helpful right now—venting, or thinking about what you need?",
+    "When you're mad at a parent, partner, or friend, it can feel extra heavy—care and frustration often show up together. What sits with you most right now?",
+    "It makes sense to feel angry when someone close to you lets you down or crosses a line. I'm not here to judge. Would you like to talk through what happened?",
+  ],
+  /** When user is mad at someone close (mirrors server topic fallbacks for frontend-only mode). */
+  relational_anger_parents: [
+    "It makes sense you'd feel angry when things with your parents feel unfair or hurtful. I'm not here to take sides. What happened that stirred this up most?",
+    "Anger toward family can feel messy. Your feelings are valid. Would it help to vent about what they did—or what keeps replaying in your mind?",
+    "When parents push our buttons, it can hit hard. You're allowed to be mad. What would feel safest next—cooling off, writing it down, or planning what you might say later?",
+  ],
+  relational_anger_partner: [
+    "Anger toward a partner often comes from feeling let down or unheard. What happened between you two that's sitting with you most?",
+    "When someone you're close to crosses a line, anger is a natural response. What would feel fair to you in this situation?",
+    "If you're worried you might say something you regret, taking a little space before you respond can help. Do you want to express this to them soon, or do you need time first?",
+  ],
+  relational_anger_friend: [
+    "Fights with a friend can hurt a lot—especially when you trusted them. What happened from your side? I'm listening.",
+    "It's rough when a friend lets you down. You can care about them and still be furious. What would feel most honest to get off your chest?",
+    "When you're done with how they're acting, that anger can be protective. You don't have to fix the whole friendship tonight. What would feel kindest to yourself in the next day or two?",
   ],
   lonely: [
     "Loneliness is painful, and it's more common than we think. Reaching out here is a step. Would you like to talk about what's been missing?",
@@ -89,6 +107,31 @@ function pickRandom(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
+/** Rough match: upset with parents / partner / friend (no server required). */
+function getRelationalAngerTopic(text) {
+  const lower = (text || '').toLowerCase();
+  const hasAnger =
+    /\b(angry|mad|furious|pissed|resent|frustrat|fed up|so done)\b/.test(lower) || lower.includes("can't stand") || lower.includes('cant stand');
+  if (!hasAnger) return null;
+  if (
+    /\b(parents?|mom|mother|dad|father)\b/.test(lower) ||
+    lower.includes('at my parents') ||
+    lower.includes('with my parents')
+  ) {
+    return 'relational_anger_parents';
+  }
+  if (
+    /\b(boyfriend|girlfriend|husband|wife)\b/.test(lower) ||
+    (/\bpartner\b/.test(lower) && (lower.includes('my partner') || lower.includes('at my partner')))
+  ) {
+    return 'relational_anger_partner';
+  }
+  if (/\bfriend\b/.test(lower) || lower.includes('my friend')) {
+    return 'relational_anger_friend';
+  }
+  return null;
+}
+
 export function getBotResponse(userMessage) {
   const trimmed = (userMessage || '').trim();
   if (!trimmed) {
@@ -97,6 +140,11 @@ export function getBotResponse(userMessage) {
 
   if (isCrisisMessage(trimmed)) {
     return pickRandom(CRISIS_RESPONSES);
+  }
+
+  const relTopic = getRelationalAngerTopic(trimmed);
+  if (relTopic && EMOTION_RESPONSES[relTopic]) {
+    return pickRandom(EMOTION_RESPONSES[relTopic]);
   }
 
   const emotion = getEmotionFromText(trimmed);

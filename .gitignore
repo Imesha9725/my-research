@@ -24,6 +24,7 @@ ml/models/*.joblib
 ml/models/lora_*/
 ml/models/text_emotion/checkpoints/
 ml/models/
+ml/data/processed/
 
 npm-debug.log*
 yarn-debug.log*
