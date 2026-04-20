@@ -517,7 +517,7 @@ const TOPIC_RESPONSES = {
     "It sounds like something really upset you in the relationship. I'm here to listen without judgment. Do you want to vent, or talk through what you might need from them when you're calmer?",
     "When a boyfriend, girlfriend, or partner crosses a line—or keeps doing the same thing—anger is a natural response. You don't have to pretend you're fine. What would feel fair to you in this situation?",
     "It's thoughtful to notice if you might say something you regret in the heat of the moment. Taking a little space before responding can help you say what you truly mean. Do you feel like you want to express this to them soon, or do you need time first?",
-    "Relationship conflict can stir up a lot at once—hurt, anger, maybe fear about the future. You don't have to fix it all in one conversation. What's one thing you wish they understood about how you're feeling right now?",
+    "Relationship conflict can stir up a lot at once—hurt, anger, maybe fear about the future. You don't have to fix it all in one conversation. After a while, call him in a cheerful way.",
   ],
   angry_at_friend: [
     "Fights or bad blood with a friend can hurt a lot—especially when you trusted them. Your anger makes sense. What happened from your side? I'm listening.",

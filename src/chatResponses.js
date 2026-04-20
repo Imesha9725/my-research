@@ -138,6 +138,16 @@ export function getBotResponse(userMessage) {
     return "I'm here when you're ready. You can type anything you'd like to share.";
   }
 
+  const normalized = trimmed
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}\s']/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  if (normalized === 'okay i will try then') {
+    return 'I think you can do it!';
+  }
+
   if (isCrisisMessage(trimmed)) {
     return pickRandom(CRISIS_RESPONSES);
   }
