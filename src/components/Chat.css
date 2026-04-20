@@ -326,8 +326,21 @@
 }
 
 .chat-mic-icon {
-  font-size: 1.25rem;
-  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+  color: var(--text, #1a1a1a);
+}
+
+.chat-mic-svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+
+.chat-mic--active .chat-mic-icon {
+  color: #a33;
 }
 
 @keyframes mic-pulse {
