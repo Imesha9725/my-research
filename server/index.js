@@ -71,7 +71,7 @@ const KEYWORD_MAP = [
 /** Phrase/regex layer — catches lines like “I feel like I’m going to fail everything” with no single keyword hit. */
 const EMOTION_REGEX_RULES = [
   { re: /\b(going to fail|gonna fail|will fail|i'?ll fail|feel like i.*\bfail|afraid i'?ll fail|scared (?:i )?(?:will|'?ll) fail|fail everything|failing everything)\b/i, emotion: 'stress' },
-  { re: /\b(exam|exams|midterm|finals)\b.*\b(stress|stressed|panic|worried|scared|afraid|fail)\b|\b(stress|stressed|panic|worried)\b.*\b(exam|exams|study|studying)\b/i, emotion: 'stress' },
+  { re: /\b(exam|exams|midterm|finals)\b.*\b(stress|stressed|panic|worried|scared|afraid|fail)\b|\b(stress|stressed|panic|worried)\b.*\b(exam|exams|study|studying|studied)\b/i, emotion: 'stress' },
   { re: /\b(so stressed|really stressed|very stressed|super stressed|under pressure|too much pressure|deadline|burnout|burned out)\b/i, emotion: 'stress' },
   { re: /\b(i feel|i'?m feeling|im feeling|feeling)\s+(sad|awful|terrible|empty|numb|hopeless|lost)\b/i, emotion: 'sad' },
   { re: /\b(hopeless|worthless|can'?t cope|cant cope|giving up|nothing matters|no point)\b/i, emotion: 'sad' },
@@ -806,6 +806,10 @@ function getFallbackResponse(text, emotion, history = [], _memoryContext = {}) {
   if (intent === 'gratitude') {
     return GRATITUDE_ONLY_FALLBACK[Math.floor(Math.random() * GRATITUDE_ONLY_FALLBACK.length)];
   }
+  // Scenario-first guard: keep exam/study messages on-topic even if keyword topic detection misses a variant (e.g. "studied").
+  if (isExamAcademicStressScenario(trimmed, history)) {
+    return getExamStressAdaptiveResponse(trimmed, history);
+  }
   const contextText = getContextText(history) + ' ' + trimmed;
   const topic = getTopicFromText(trimmed) || getTopicFromText(contextText);
   if (topic === 'exam') {
@@ -997,9 +1001,9 @@ function normalizeClientHistory(arr) {
 function mergeHistoryForUser(dbHistory, clientHistory, maxLen = 24) {
   const db = Array.isArray(dbHistory) ? dbHistory.filter((m) => m?.text) : [];
   const cl = normalizeClientHistory(clientHistory);
-  if (cl.length === 0) return db.slice(-maxLen);
-  if (db.length === 0) return cl.slice(-maxLen);
-  if (cl.length >= db.length) return cl.slice(-maxLen);
+  // Prefer the UI-provided thread when available: it reflects what the user is currently seeing.
+  // Using longer DB history can "leak" older topics (e.g. grief) into a new chat turn.
+  if (cl.length > 0) return cl.slice(-maxLen);
   return db.slice(-maxLen);
 }
 
