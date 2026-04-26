@@ -1,8 +1,9 @@
 /**
  * Emotion-aware mental health chat API.
  *
- * Primary path (generative): OpenAI-compatible chat completion (GPT, or local LLaMA/T5 via
- * OPENAI_BASE_URL + OPENAI_MODEL). The model generates new replies from context—it does not
+ * Primary path (generative): OpenAI-compatible chat completion (OpenAI, Groq free tier via
+ * GROQ_API_KEY, or local LLaMA/Ollama via OPENAI_BASE_URL + OPENAI_API_KEY). The model generates
+ * new replies from context—it does not
  * look up answers from dataset rows.
  *
  * Fallback path (no API key / API error): rule-based topics + emotions + curated empathy.
@@ -36,6 +37,36 @@ const DATASET_PATH = path.resolve(__dirname, '../ml/models/dataset_responses.jso
 const app = express();
 const PORT = process.env.PORT || 5001;
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-only-change-JWT_SECRET-in-production';
+
+/** Groq uses the OpenAI SDK with a fixed base URL; see https://console.groq.com/docs/openai */
+const GROQ_OPENAI_BASE_URL = 'https://api.groq.com/openai/v1';
+
+/**
+ * Which LLM backend to call for chat completions. Groq takes precedence if GROQ_API_KEY is set
+ * (so you can keep OPENAI_* in .env for later without hitting a dead quota).
+ */
+function getGenerativeLlmConfig() {
+  const groqKey = (process.env.GROQ_API_KEY || '').trim();
+  if (groqKey) {
+    const model = (process.env.GROQ_MODEL || 'llama-3.1-8b-instant').trim() || 'llama-3.1-8b-instant';
+    return {
+      provider: 'groq',
+      apiKey: groqKey,
+      baseURL: GROQ_OPENAI_BASE_URL,
+      model,
+    };
+  }
+  const openaiKey = (process.env.OPENAI_API_KEY || '').trim();
+  if (!openaiKey) return null;
+  const base = (process.env.OPENAI_BASE_URL || '').trim();
+  const model = (process.env.OPENAI_MODEL || 'gpt-4o-mini').trim() || 'gpt-4o-mini';
+  return {
+    provider: base ? 'openai_compatible' : 'openai',
+    apiKey: openaiKey,
+    baseURL: base || undefined,
+    model,
+  };
+}
 
 function signToken(user) {
   return jwt.sign({ sub: String(user.id), email: user.email }, JWT_SECRET, { expiresIn: '30d' });
@@ -75,7 +106,11 @@ const EMOTION_REGEX_RULES = [
   { re: /\b(so stressed|really stressed|very stressed|super stressed|under pressure|too much pressure|deadline|burnout|burned out)\b/i, emotion: 'stress' },
   { re: /\b(i feel|i'?m feeling|im feeling|feeling)\s+(sad|awful|terrible|empty|numb|hopeless|lost)\b/i, emotion: 'sad' },
   { re: /\b(hopeless|worthless|can'?t cope|cant cope|giving up|nothing matters|no point)\b/i, emotion: 'sad' },
-  { re: /\b(i feel|i'?m|im)\s+(anxious|nervous|worried|scared|afraid)\b/i, emotion: 'anxious' },
+  // Fear (threat-focused) vs anxiety (worry/anticipation): keep "scared/afraid" as fear so it doesn't get collapsed into anxious.
+  { re: /\b(i feel|i'?m|im)\s+(scared|afraid|frightened|terrified)\b/i, emotion: 'fear' },
+  { re: /\b(i feel|i'?m|im)\s+(anxious|nervous|worried|panicky|panic)\b/i, emotion: 'anxious' },
+  { re: /\b(scared|afraid|frightened|terrified)\s+(of|to|that)\b/i, emotion: 'fear' },
+  { re: /\b(fear of|my fear|i fear|it scares me|that scares me|i'?m scared)\b/i, emotion: 'fear' },
   { re: /\b(on edge|racing heart|can'?t calm|cant calm|panic attack)\b/i, emotion: 'anxious' },
   { re: /\b(so lonely|feel alone|nobody (?:gets|understands)|isolated)\b/i, emotion: 'lonely' },
 ];
@@ -867,7 +902,7 @@ function buildOpenAIMessages(systemPrompt, history, currentText, currentEmotion,
 }
 
 async function computeChatReply(text, history, audioBase64, memoryContext = {}) {
-  const apiKey = process.env.OPENAI_API_KEY;
+  const llmCfg = getGenerativeLlmConfig();
   let emotion = null;
   let emotionSource = 'heuristic';
   if (EMOTION_API_URL && (text || audioBase64)) {
@@ -894,8 +929,8 @@ async function computeChatReply(text, history, audioBase64, memoryContext = {}) 
     return { reply: thanksReply, emotion: emotion || undefined, fallback: false };
   }
 
-  if (!apiKey) {
-    console.warn('[chat] No OPENAI_API_KEY — using rule-based fallback (not generative).');
+  if (!llmCfg) {
+    console.warn('[chat] No GROQ_API_KEY or OPENAI_API_KEY — using rule-based fallback (not generative).');
     const fallback = getFallbackResponse(text, emotion, history, memoryMerged);
     return { reply: fallback, emotion: emotion || undefined, fallback: true };
   }
@@ -903,17 +938,16 @@ async function computeChatReply(text, history, audioBase64, memoryContext = {}) 
   const crisis = isCrisisMessage(text);
   const emotionalHistory = getEmotionalHistory(history);
   const systemPrompt = buildSystemPrompt(emotion, crisis, emotionalHistory, text, history, memoryMerged, intent);
-  const openaiBaseURL = (process.env.OPENAI_BASE_URL || '').trim();
   const openai = new OpenAI({
-    apiKey,
-    ...(openaiBaseURL ? { baseURL: openaiBaseURL } : {}),
+    apiKey: llmCfg.apiKey,
+    ...(llmCfg.baseURL ? { baseURL: llmCfg.baseURL } : {}),
   });
 
   const messages = buildOpenAIMessages(systemPrompt, history, text, emotion, intent);
 
   try {
     const completion = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+      model: llmCfg.model,
       messages,
       max_tokens: 400,
       temperature: 0.7,
@@ -926,7 +960,7 @@ async function computeChatReply(text, history, audioBase64, memoryContext = {}) 
     }
     return { reply, emotion: emotion || undefined, fallback: false };
   } catch (err) {
-    console.warn('OpenAI error (using fallback):', err.message);
+    console.warn(`${llmCfg.provider} LLM error (using fallback):`, err.message);
     const fallback = getFallbackResponse(text, emotion, history, memoryMerged);
     return { reply: fallback, emotion: emotion || undefined, fallback: true };
   }
@@ -1035,10 +1069,14 @@ app.post('/api/chat', async (req, res) => {
 
 // Health check
 app.get('/api/health', (_, res) => {
+  const gen = getGenerativeLlmConfig();
   res.json({
     ok: true,
-    generative: !!process.env.OPENAI_API_KEY,
-    llm: !!process.env.OPENAI_API_KEY,
+    generative: !!gen,
+    llm: !!gen,
+    provider: gen?.provider || null,
+    model: gen?.model || null,
+    groq: gen?.provider === 'groq',
     openaiBaseURL: !!(process.env.OPENAI_BASE_URL || '').trim(),
     iemocapRetrievalFallback: USE_IEMOCAP_RETRIEVAL,
   });
@@ -1053,12 +1091,17 @@ app.listen(PORT, () => {
   } else {
     console.log('Emotion API:', EMOTION_API_URL);
   }
-  if (!process.env.OPENAI_API_KEY) {
-    console.warn('OPENAI_API_KEY not set. Set it in server/.env to enable generative (GPT/compatible) responses.');
-  } else if ((process.env.OPENAI_BASE_URL || '').trim()) {
-    console.log('Generative API: using OPENAI_BASE_URL (e.g. local LLaMA/Ollama/vLLM). Model:', process.env.OPENAI_MODEL || 'gpt-4o-mini');
+  const gen = getGenerativeLlmConfig();
+  if (!gen) {
+    console.warn(
+      'No GROQ_API_KEY or OPENAI_API_KEY. Set GROQ_API_KEY in server/.env for free-tier Groq, or OPENAI_API_KEY for OpenAI / compatible servers.'
+    );
+  } else if (gen.provider === 'groq') {
+    console.log('Generative API: Groq (OpenAI-compatible). Model:', gen.model);
+  } else if (gen.provider === 'openai_compatible') {
+    console.log('Generative API: OPENAI_BASE_URL (e.g. local LLaMA/Ollama/vLLM). Model:', gen.model);
   } else {
-    console.log('Generative API: OpenAI. Model:', process.env.OPENAI_MODEL || 'gpt-4o-mini');
+    console.log('Generative API: OpenAI. Model:', gen.model);
   }
   if (USE_IEMOCAP_RETRIEVAL) {
     console.log('IEMOCAP line retrieval enabled in fallback (USE_IEMOCAP_RETRIEVAL=true).');
