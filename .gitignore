@@ -20,6 +20,7 @@
 .env.production.local
 server/.env
 server/data/
+data/empatheticdialogues/
 ml/models/*.joblib
 ml/models/lora_*/
 ml/models/text_emotion/checkpoints/
