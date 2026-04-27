@@ -1,0 +1,27 @@
+{
+  "model_dir": "D:\\My Research Project\\my-research\\ml\\models\\text_emotion",
+  "dataset_json": "D:\\My Research Project\\my-research\\ml\\models\\dataset_responses.json",
+  "augment_csv": "D:\\My Research Project\\my-research\\ml\\data\\text_emotion_augment.csv",
+  "extra_csv": [],
+  "labels": [
+    "neutral",
+    "sad",
+    "anxious",
+    "stress",
+    "angry",
+    "lonely",
+    "happy",
+    "tired",
+    "fear"
+  ],
+  "n_total_rows": 5227,
+  "n_test": 1046,
+  "test_size": 0.2,
+  "seed": 123,
+  "device": "cpu",
+  "accuracy": 0.5554493307839388,
+  "macro_precision": 0.2940069139573389,
+  "macro_recall": 0.46980968404963735,
+  "macro_f1": 0.3324231449629728,
+  "weighted_f1": 0.556441402567126
+}

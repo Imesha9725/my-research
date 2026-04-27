@@ -1,0 +1,112 @@
+{
+  "model_dir": "D:\\My Research Project\\my-research\\ml\\models\\text_emotion",
+  "dataset_json": "D:\\My Research Project\\my-research\\ml\\models\\dataset_responses.json",
+  "augment_csv": "D:\\My Research Project\\my-research\\ml\\data\\text_emotion_augment.csv",
+  "extra_csv": [],
+  "labels": [
+    "neutral",
+    "sad",
+    "anxious",
+    "stress",
+    "angry",
+    "lonely",
+    "happy",
+    "tired",
+    "fear"
+  ],
+  "n_total_rows": 5347,
+  "n_test": 802,
+  "test_size": 0.15,
+  "seed": 42,
+  "device": "cpu",
+  "split": {
+    "min_test_per_class": 10,
+    "rare_classes_total_counts": {},
+    "test_support_per_class": {
+      "neutral": 345,
+      "angry": 215,
+      "sad": 70,
+      "happy": 112,
+      "anxious": 13,
+      "stress": 13,
+      "lonely": 10,
+      "tired": 11,
+      "fear": 13
+    }
+  },
+  "metrics": {
+    "model_all_classes": {
+      "accuracy": 0.5124688279301746,
+      "macro_precision": 0.7355414976647947,
+      "macro_recall": 0.7567839334017292,
+      "macro_f1": 0.7183057820938409,
+      "weighted_f1": 0.49836049137097205,
+      "included_labels": [
+        "neutral",
+        "sad",
+        "anxious",
+        "stress",
+        "angry",
+        "lonely",
+        "happy",
+        "tired",
+        "fear"
+      ]
+    },
+    "baseline_all_classes": {
+      "accuracy": 0.5211970074812967,
+      "macro_precision": 0.6089379866207844,
+      "macro_recall": 0.5512658801334231,
+      "macro_f1": 0.5625570533041393,
+      "weighted_f1": 0.5233949831634963,
+      "included_labels": [
+        "neutral",
+        "sad",
+        "anxious",
+        "stress",
+        "angry",
+        "lonely",
+        "happy",
+        "tired",
+        "fear"
+      ]
+    },
+    "model_supported_classes_only": {
+      "accuracy": 0.5124688279301746,
+      "macro_precision": 0.7355414976647947,
+      "macro_recall": 0.7567839334017292,
+      "macro_f1": 0.7183057820938409,
+      "weighted_f1": 0.49836049137097205,
+      "included_labels": [
+        "neutral",
+        "sad",
+        "anxious",
+        "stress",
+        "angry",
+        "lonely",
+        "happy",
+        "tired",
+        "fear"
+      ]
+    },
+    "baseline_supported_classes_only": {
+      "accuracy": 0.5211970074812967,
+      "macro_precision": 0.6089379866207844,
+      "macro_recall": 0.5512658801334231,
+      "macro_f1": 0.5625570533041393,
+      "weighted_f1": 0.5233949831634963,
+      "included_labels": [
+        "neutral",
+        "sad",
+        "anxious",
+        "stress",
+        "angry",
+        "lonely",
+        "happy",
+        "tired",
+        "fear"
+      ]
+    }
+  },
+  "delta_supported_macro_f1": 0.15574872878970158
+}

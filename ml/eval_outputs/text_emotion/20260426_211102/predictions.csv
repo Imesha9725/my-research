@@ -1,0 +1,786 @@
+text,true_label,pred_label,pred_confidence
+Do you remember the first time we came to see it?  It was about four years ago right after we got married.,neutral,neutral,0.499452
+She likes you.  She likes the kids.,neutral,happy,0.681517
+Send me to whatever operator. I just- You know what?  I'm just done.  I'm just done.  I've lost all hope.,angry,sad,0.452256
+"It's good, you know.  you know It hurts I know.  I know what it's like to lose someone like that.",neutral,sad,0.682977
+I think it's a good idea to live together before you get married.,happy,happy,0.933793
+All right.,neutral,neutral,0.423427
+Don't laugh at me. I'm serious.,happy,angry,0.478246
+About what?,neutral,neutral,0.496326
+"What if--maybe--what if, uh, we went somewhere over there?  I don't--I don't know--I--I need to figure something out for this because--",angry,angry,0.460018
+"I've got an idea, but what's the story?",sad,neutral,0.447825
+"""sigh"" Three weeks.",sad,neutral,0.619168
+There is a strict system here.  You need to wait in the right line for the right thing.  This is the line for registration.,angry,neutral,0.574011
+With the most perfect poise.,happy,happy,0.938327
+I don't want you in danger.  And I don't want her in danger.,sad,angry,0.592695
+Just making myself fascinating for you.,neutral,neutral,0.584621
+There's nothing wrong with it.,neutral,neutral,0.369736
+Cindy?,angry,neutral,0.910174
+There's There's mystery here and magic.  A little bit of the unexplainable.  I can't understand how you could not be interested.,happy,neutral,0.414467
+I'm not the least bit drunk.,neutral,angry,0.515209
+"okay, just go back and fill it out real quick and I'm sorry, you have to get back in line and wait. I can't let you cut.",angry,angry,0.540849
+"[LAUGHTER] Oh, I'm going to be working too, I mean.",happy,happy,0.922081
+I'm so stupid. I'm like a little kid. I-it's amazing I get out of the house with my fly zipped. Oh- [LAUGHTER].,happy,happy,0.855262
+No it isn't.,angry,angry,0.683135
+"Amanda, listen. listen",angry,angry,0.856088
+Mind your own business.,angry,angry,0.857358
+No that fire will fade long with our passion.,neutral,neutral,0.499310
+It's not right.,angry,angry,0.598119
+What?,neutral,angry,0.625192
+"He likes to keep tabs, you know.",happy,neutral,0.629717
+And then we'll thrash it out with father.  Okay Mom?  Don't avoid me.,neutral,angry,0.519081
+Do you remember that awful scene we had in Venice?,happy,neutral,0.688020
+Why not?,angry,neutral,0.532794
+Do you want my jacket?,neutral,neutral,0.575551
+You did?,neutral,neutral,0.606402
+Hmm.  The pity is that one can't stay happy.,neutral,sad,0.602161
+Nobody's even here.  Your parents live on the other side of the country.,neutral,neutral,0.638328
+Clearly everything you're doing is completely wrong.,angry,angry,0.785694
+"It was a hundred a sixty dollars.  I'm sorry, uh, sixteen dollars.",neutral,sad,0.702021
+"Isn't it your business, too, if I tell dad and he throws a fit about it?  You have such a talent for ignoring things.",angry,angry,0.583875
+Well I got an idea.  But what's the story?,neutral,neutral,0.566416
+"Yes I am. Let go of me. I hate you and I loath you. God, I can't believe I just finally realized how you are. I am never marry you. Never. Never, never, never. I would rather die in torment.",angry,angry,0.825174
+So we walked down there and there's-[LAUGHTER]-And there's- this huge like ten foot heart in candles on the beach--,neutral,happy,0.686374
+I- I- I'm testing your patience?,neutral,angry,0.715334
+I know you did.  You threw him out the window into the Grand Canal.  I'll never forgive you for that.,neutral,sad,0.361325
+Twice is as many times as we've tried. That's ever.,neutral,neutral,0.586516
+"No I don't want to call back, you put me on hold for like hours and hours----and it's money, money, money, money and out of my pocket, out of my pocket--",angry,angry,0.714515
+"Of course. If there's anything I can do, you just let me know.  Okay?",neutral,neutral,0.375725
+[BREATHING],happy,neutral,0.448108
+"Nobody in my house better ever dare-dare to challenge her faith. Maybe strangers, but not his father, not his brother.",angry,angry,0.687501
+[BREATHING],happy,neutral,0.448108
+I know.,neutral,sad,0.632034
+"Yeah, totally.",happy,happy,0.578967
+Ma'am in flying with Northwest Airlines you agreed to,angry,angry,0.622547
+"I'll believe it, but- I'll believe it but it- I don't know that that's going to happen.",angry,sad,0.291790
+Next fall.,neutral,neutral,0.923126
+"All right.  But don't think like that because what the hell did we work for, Chris?  All of this, all of it, it's all just for you.",angry,angry,0.677618
+"Of course, of course--you'll be able to be a part of it.  You can come help me pick my colors.",happy,happy,0.590278
+What? Are you kidding me? We just got here. We'd miss it. What's the point of coming down there if we just turn around and go home?,neutral,angry,0.610775
+It's ridiculous.,neutral,angry,0.750856
+Can you prove it?  How can you prove it?,angry,angry,0.453824
+No thanks.,angry,angry,0.535912
+Not to mention I have my work in there.,angry,neutral,0.681169
+"Ah, man this is great.  I wouldn't miss this for anything.  I mean think about this.  I know you're not interested but just think about this for a minute.",happy,happy,0.927515
+he comes up onstage-- And the entire cast everyone just like,happy,neutral,0.481484
+"As a matter of fact, that is perfectly true.",neutral,happy,0.801186
+I'm just not.,angry,angry,0.498820
+I'm so excited.,happy,happy,0.981491
+"All right.  Well, um, you know, I'd love to help you, but--nothing I can do.",angry,sad,0.332644
+Why didn't you let me know?,happy,neutral,0.373484
+I didn't say that.,angry,sad,0.544111
+Do you have any idea-- fifty dollars?  That's supposed to replace everything that I have?  Do you understand how much I have packed in there? Not only does it have sentimental value; it can't be replaced like that.  It was incredibly expensive.,angry,angry,0.508596
+I did exactly what they told me to do.,angry,neutral,0.516779
+"See, then it's not just my business. God, you have",angry,angry,0.796070
+I'm asking you if this is direct flight from Baltimore to LAX or if you have to stop--,angry,angry,0.536738
+"What I can do for you, if you want to make a call right now I could contact you through our computer.  I can call through my phone and you can speak through me.",neutral,angry,0.434113
+Why me above all?,angry,angry,0.620486
+It's a pity you didn't have more brandy. It might have made you a little less disagreeable.,neutral,angry,0.667013
+"You kept saying my flashlight, if as if somehow it's just yours.  I mean is that supposed to make me feel?",neutral,neutral,0.364668
+Sir. Sir. Sir. Sir,angry,angry,0.699601
+"Yes, on this I would.",neutral,happy,0.507226
+"Um, Johnny died yesterday.",sad,sad,0.651665
+"Uh, so it was really heavy.",neutral,sad,0.434539
+"In the first place, your mother as much as told me to go.",neutral,neutral,0.786810
+"It's going really well.  Um, I received something in the mail today.",neutral,neutral,0.516972
+You want me to go get some champagne?,neutral,neutral,0.582204
+What if you don't come back?,angry,neutral,0.462033
+I got into U.S.C.,happy,neutral,0.644936
+[BREATHING] It's so hot in here. Hoo.,neutral,happy,0.714442
+Kelly.,neutral,neutral,0.686806
+yes.,neutral,neutral,0.451630
+"Aw.  Thank you, darling.  The same applies to you too, except that if you so much as look at another woman I'll kill you.",happy,happy,0.875948
+"He's not going to be a citizen, though.",neutral,neutral,0.485544
+"It was in the car right.  Driving past the Knickerbocker Liquor Locker, you said let's get some champagne and I said times a wasting or something like that.  Right?",neutral,neutral,0.642995
+"I mean it just says that you need some form of identification, but it doesn't say what kind of identification.",angry,neutral,0.504955
+"Alright.  You know what, sir.  The customer is always right.",angry,angry,0.356466
+You know why.,neutral,neutral,0.362705
+Are you bored with this conversation?,neutral,neutral,0.447979
+No one sent them a map or an invitation.  Just some little instinctual time release firecracker went off in their little bodies and all as one. They turned and formed a line as long as the California coast and started swimming.,happy,happy,0.560054
+I can't help it.,sad,sad,0.482816
+It's true.  The whole business is a very poor joke.,happy,happy,0.938806
+"Do you know what, it's going to pass,eventually, I mean it'll never pass, it'll always be there, and you'll always remember and everything like that, but you know.  It'll get easier I guess.",neutral,sad,0.588434
+You can't just toss off a thing like that because they weren't just men. You know?,sad,sad,0.309105
+"But it's true, babe.  You've got to be more positive about things.  Like- Have some faith in yourself.",angry,happy,0.861516
+I know.  I'm excited.,happy,happy,0.960586
+Good for you.,happy,happy,0.955999
+You have to make amends for what you did for losing my bag and all of my stuff.  Fifty dollars is unacceptable.,angry,angry,0.832940
+"Well if she does, then that's it.  That's the end of it.  From her letters, though, I think she's pretty much forgotten him.",neutral,neutral,0.493142
+It wouldn't work this way.,sad,sad,0.637508
+You know when I went overseas. I said I was in command of a company.,sad,neutral,0.515592
+"At Arapaho we could afford that. [GARBAGE]. Yeah.  So what are you doing this summer, though?  You're staying around, too, yeah?",neutral,neutral,0.434203
+"As I mentioned before, I have had three minute liquor glasses of brandy the whole evening long.  A child of two couldn't get drunk on that.",angry,angry,0.452927
+What?,neutral,angry,0.625192
+"Yes, and if you also remember, I got sand in my panties. We got into an argument about nothing. You got a sore throat and we never saw the grunions.",angry,angry,0.700219
+There's nothing I can do for you.  Do you understand that?  Nothing.,angry,angry,0.414586
+"I know that, mom.  Just you help me stay here.",angry,angry,0.427186
+"Is he an actor too, or-?",neutral,neutral,0.658285
+All right.  All right.  Calm yourself.,angry,angry,0.585981
+I feel like I have faith and now faith is running thin because there is no money.,sad,neutral,0.335420
+Uh- Not lose the baggage in the first place. I mean You're offering a service here. I paid so much money for that ticket.,angry,neutral,0.417378
+"Oh, I hate you. It's a good thing that I found out in time what you're really like. Marry you again?  Never, never, never.",angry,angry,0.785369
+And Uh- Yeah. Uh- They're going to need um- more nurses on call for uh- to go overseas to help out with the war.,sad,neutral,0.428627
+Alright?  Great.  Have a nice evening.,neutral,happy,0.779897
+"I want to definitely give you our special package today, which um is usually only for valued customers who have a record of having previous,",neutral,neutral,0.837310
+"It's the way it seems to me.  You started complaining about not being able to find a job the first day you went out and didn't find a job.  And I'm not saying like and not trying to you know put you down or anything, it's just that-",neutral,angry,0.532551
+This what?  What is this?  This isn't even anything.,sad,angry,0.651507
+That's my point.,neutral,neutral,0.762297
+"You're my best friend, we're growing up and now you're getting married. that's amazing",happy,happy,0.988037
+"It's hard enough already, Brian, I can't.",sad,sad,0.629266
+"I put- I've been typing my number in millions of times, it won't listen to me, it's not working, and I can't get a single human being, and finally-",angry,sad,0.407359
+Oh dear.  I'm bored with this conversation.,angry,angry,0.864340
+"Look, you better turn that off. I don't want to wake up the people upstairs.",angry,angry,0.683235
+It's single mindedness with no mind.  It is urgency that is just pure urge.,happy,happy,0.630916
+It's got that all about it.,angry,neutral,0.353373
+I wouldn't marry you if you came in crawling on your knees,angry,angry,0.677003
+"Well, yeah, of course, but you're going to be working on your school stuff too, and partying that takes up a lot of time, right, especially at U.S.C., I hear it's a big party college.",neutral,happy,0.584824
+"Okey Well- well-, you know what?  I was hoping that you would help",happy,happy,0.826834
+Yeah.,sad,neutral,0.372305
+"Just believe with me, Joe. Only last week a man came back in Detroit missing longer than Larry.  Believe with me. You, above all, have got to believe. Just believe.",angry,angry,0.509001
+"Yes, meaning just that.",neutral,happy,0.580359
+No.  No browns.,neutral,angry,0.571749
+Uh! I'm so happy that you're not going to go away.,happy,happy,0.963134
+Then it isn't just my business.,angry,angry,0.777410
+"For Gods sake, three years!  Nobody comes back after three years.  It's insane!",angry,angry,0.823043
+How many pieces of luggage do you have checked in?,neutral,neutral,0.820770
+-on average would use.,neutral,neutral,0.811015
+Hello?  Hello?  What?  Wrong number.,neutral,neutral,0.676819
+"Well, that's a good reason.  But it don't mean a thing. I mean, You haven't seen her since you went to war.  It's been five years.",neutral,angry,0.511872
+I am exhausted and drained,tired,sad,0.475941
+"No, I don't. I'm not like that.",neutral,angry,0.773593
+"Hi, um, excuse me, I believe that the airline lost my baggage.",neutral,neutral,0.634550
+"Oh, don't be ridiculous.  I mean, don't you know that?",neutral,angry,0.445881
+And she-she's Larry's girl.,angry,angry,0.398170
+"I know, I know.  It's really, really messed up.",angry,sad,0.710123
+Then it's alright.  I'll go ahead with it.,angry,happy,0.542811
+"You mean that sacred and beautiful thing, love?",neutral,happy,0.618886
+"All right.  Look, I've been trying to work this backwards, but I cannot seem to figure out the exact moment that we took a turn for the worst.",angry,angry,0.557670
+"I know you meant this to be special, I know that you wanted it to be right, but I just can't help thinking that, I can't help wishing that I was somewhere else.",sad,sad,0.712719
+"Things that ought to matter dreadfully don't matter at all when one's happy, do they?",happy,neutral,0.453723
+"Okay, so you think you're going to-  -get me back some minutes, and that's going to make up for three days of business that I lost?  Okay, great.",angry,angry,0.479805
+Yeah.  I'll help plan.,happy,happy,0.905736
+I'm getting a little weak in the knees.,happy,sad,0.572993
+"I don't want money, I want my clothes.",angry,angry,0.761738
+"I grew up with her. Okay. All these years, when I think of someone I want to be my wife I think of Annie. What do you want, a diagram?",angry,angry,0.446158
+"I--when you're going to the D.M.V., you usually need pretty professional identification--",angry,angry,0.417183
+"Oh, this is great.  I wouldn't miss this for the world.  I mean think about this. I know you are not interested but think about this for a second.",happy,happy,0.906452
+I am thinking that way.,neutral,neutral,0.605424
+It's true the whole business is very poor joke.,happy,happy,0.903858
+What is it Chris?,neutral,neutral,0.688880
+"Well, you're a considerate fella.  There's nothing wrong with that.",neutral,angry,0.425389
+"Just, I don't know, maybe you're not smart enough.",neutral,angry,0.434274
+"No, nothing like that.",neutral,angry,0.545284
+So you'd like the fifty dollar voucher?,neutral,neutral,0.819600
+Fine.,angry,neutral,0.426581
+Look.  It's a nice day.  Why are we arguing?,angry,angry,0.600194
+"Oh, I approve. I-[LAUGHTER]-I more than approve.",happy,happy,0.958739
+"Sure, everybody's told the same story.  It keeps us all excited.  It keeps us coming back for more.  It keeps us thinking that life is gonna start any second now if we could just find the right spot and get in on the action.",neutral,happy,0.752412
+Of course.,neutral,neutral,0.584583
+Okay.,neutral,neutral,0.454169
+Yeah,sad,neutral,0.488774
+I don't know. Some lady. Sonya or something.,angry,neutral,0.388176
+There aren't any people upstairs.  It's a photographer's studio.,angry,angry,0.568317
+So let's go home.,angry,angry,0.457107
+Yes--it is,neutral,happy,0.404142
+I mean There's pretty much doughnut shops everywhere in LA.,neutral,neutral,0.546682
+No.,neutral,angry,0.443268
+I almost got married two years ago.,neutral,happy,0.561995
+yeah.,neutral,neutral,0.372305
+"Maybe it got lost. Did you think about that, mom?",angry,sad,0.507969
+I mean it's not like this is an,angry,angry,0.546345
+But that'll fit you  because you're a dork.,neutral,neutral,0.520463
+Social life.  Hello.,happy,neutral,0.868568
+And then I went home and it was incredible.  It had no meaning here.,sad,sad,0.376255
+What of it?,angry,angry,0.684727
+"There's nothing to it, alright? We come down here, the grunion arrive, they do their little fish business, we go ooh, ah, look at the fish, and then they go home and we go home.",angry,angry,0.581026
+"Really, Amanda.",angry,angry,0.515092
+It's not champagne.,happy,neutral,0.550173
+Oh my gosh.,happy,happy,0.748562
+So what're you--what're you gonna do there?  Have you decided?  Thought about it?,neutral,angry,0.541085
+"I need my stuff.  It's--I need my stuff.  I mean, uh...",neutral,angry,0.597297
+How long did that row last?,neutral,neutral,0.798365
+No G.,neutral,neutral,0.747370
+Well.,neutral,neutral,0.591700
+"When you are on the phone with Marge, everything was fine.  Dinner was okay.  Doing the dishes was no problem. Let's see, I took a shower and you were watching the news and you said the grunions are running tonight and I said, great, let's go I am feeling lucky.",neutral,happy,0.562753
+"I know. I know.  I think you go and you like stay for a couple of days and you meet people and--And they'll give you like a tour--And show you everything.  Oh, man, I'm just so--I'm so excited.",happy,happy,0.681432
+"Ma'am, first of all I'd like you to calm down.  Second of all-",angry,angry,0.809635
+Blue for the sky.,neutral,neutral,0.887648
+I can't.  There's nothing I can do.  I'm sorry.,angry,sad,0.794256
+I want something to turn out the way that it's supposed to.,neutral,neutral,0.443523
+I just keep getting rejected.  I just keep getting rejected over and over and over again and it starts to make you feel like there must be something wrong with you that you can't get a job.,angry,angry,0.637712
+"Well, you want to make sure that your father isn't going to--",neutral,neutral,0.392798
+this is the only track record that we have and if it's not listed here then it's probably not anywhere.,neutral,neutral,0.832783
+Meaning that sacred and beautiful thing love.,neutral,happy,0.971791
+"Well then go up the freaking pole and fix it like, you need to help me.  You don't understand I'm in dire, dire need of a phone right now.",neutral,angry,0.754243
+It went in intermittently for days.,happy,neutral,0.863607
+Maybe this is the right place after all.,happy,happy,0.554660
+"No.  What is it Chris, your mother?",neutral,neutral,0.462564
+I'll never forgive you.  Why did you wait all these years?  All I've done is sit and wonder if I was crazy for thinking of you.,happy,neutral,0.391436
+What?  No.  That's way too complicated.  Look--,angry,angry,0.758452
+About three million dollars.,neutral,neutral,0.816371
+It wouldn't work like this.,sad,sad,0.595507
+"No, I'll sleep in your bed. Cuddle up.",happy,happy,0.640924
+Do you want to get married again? What? What? Do you want to get a divorce?,angry,angry,0.516268
+What about me?,angry,angry,0.649382
+"Oh, for heaven sake, whatever I'm doing, I'd rather be doing it with you.",neutral,happy,0.566800
+Have you?  There's got to be something else.,neutral,neutral,0.355381
+What?- Why- Why me above all?,neutral,angry,0.660780
+All right  Uh-,neutral,neutral,0.440100
+"Well, that'll take a while. [GARBAGE]",happy,neutral,0.648941
+"Besides, it's sort of out of hands at the moment----The whole electrical power outage.",angry,angry,0.439616
+Yes on this I would.,neutral,happy,0.648134
+"The airline makes these rules, mom ma'am.",neutral,angry,0.696266
+"Sir, I don't think my name is really relevant-",angry,angry,0.792908
+"This is great, isn't it?  Look at the night we've got here, couldn't be better.",happy,happy,0.779832
+Iraq.,neutral,neutral,0.654164
+It's a relief too. I mean I was thinking I was going to have to pack up all of my stuff but yeah. Hooray for U.S.C.,neutral,happy,0.858041
+Yeah. I'll get like one of those little--,happy,happy,0.466448
+"Downtown, was it beautiful? of course it was beautiful",neutral,happy,0.816331
+"Okay. As I mentioned before, I said I had three very minute liquor glasses. That's hardly enough to get a child of two drunk.",angry,angry,0.546319
+Yeah.  We played Wheel of Fortune pennies.  It's like a giant thing with like-,happy,happy,0.586301
+bye bye,neutral,neutral,0.901485
+You don't know that.,angry,angry,0.328532
+"Well yeah, that's the general idea. [LAUGHTER]",happy,happy,0.966451
+I want- I want a family.  I want some kids.  I want to build something I give myself to.  Annie is in the middle of that.  Now where do I find it?,angry,angry,0.431251
+"And the last time before she died, I remember she couldn't really stand, umm...",sad,sad,0.650387
+like you sign up because you need money and,neutral,neutral,0.717945
+How could he see it?  I was the first one up.  He was still in bed.,neutral,neutral,0.801173
+"It was all like some kind of bus accident to them.  I went back to work with my dad, in that whole rat race again.",sad,sad,0.641443
+You went out of your way to torture me over Peter Burden.,neutral,angry,0.622932
+"I am sorry, ma'am.",angry,sad,0.563739
+You approve?  You approve?,neutral,neutral,0.473878
+The one when you bought that little painted wooden snake in the Piazza and put it on my bed.,neutral,neutral,0.767961
+He cried hard?,sad,sad,0.658626
+"I- Yeah, it's-",neutral,angry,0.419149
+Being dishonest with him. That kind of thing always pays off and now it's paying off.,neutral,neutral,0.456975
+"he had cancer, you know?",sad,sad,0.713272
+oh yeah.,neutral,neutral,0.415590
+"Not very funny, darling.  Why don't you have some more brandy.",angry,angry,0.751995
+"No, no, no.  You're right though.  I mean, you know, dorms are definitely the way to meet people.  I know that I was in an apartment off campus",neutral,angry,0.361829
+"We miss them twice, it's not ever.",angry,sad,0.374230
+Yeah.  But this..this moment on the beach is like the highlight of their little lives.  All that flopping around is laying eggs or what to do - spawning or mating or whatever.,neutral,neutral,0.584356
+Okay.  What do you want?,angry,angry,0.502341
+"No, Carla, I'm just like you.  I thought it was gonna be all peaches and roses and sand in our toes and wind in our hair and the fish will always come and the bills will pay themselves and we'll have three fat rosy kids and ha, ha, baby, the joke's on us",sad,angry,0.535118
+Don't laugh at me.  I'm serious.,neutral,angry,0.478246
+"Well, shall we always want to bicker and fight?",neutral,neutral,0.624387
+I don't know--I don't know--I don't know how--I don't know how this could even be possible for you--I--if I was--,angry,angry,0.452199
+No.,angry,angry,0.443268
+I asked for no tomatoes.,angry,neutral,0.675050
+"Yeah--I know what you mean.  I've gone through like similar stuff, but--",neutral,sad,0.324944
+I wonder if they can hear us talk. Or hear the vibrations in the sand when we move.,happy,neutral,0.886271
+So am I.  Bored stiff.  Want some brandy?,neutral,neutral,0.633801
+Okay.  And your name is?,neutral,neutral,0.562648
+"Oh yeah, of course.",happy,happy,0.400471
+"Every time I reach out for something I have to pull back because other people will suffer. My whole entire life, time and time after time.",sad,sad,0.557706
+Oh.  I hadn't even thought about that.,happy,neutral,0.487465
+Uh huh.,happy,neutral,0.535925
+Mmhmm.,neutral,neutral,0.799496
+Ha ha ha.,happy,happy,0.936699
+Are you going to live on campus?  Where are you going to live?,happy,neutral,0.460895
+"Acting Pants? So what are you going to do? Are you--you're be--you're going to stay here, right?",happy,angry,0.591929
+That's my point.,angry,neutral,0.762297
+free buffets and free events.,neutral,neutral,0.938060
+That's not your flashlight; it's ours. It's mine too.,neutral,angry,0.594953
+I'm just so scared to start over I mean.  I put so much time and energy into being here.,sad,fear,0.851923
+"I've been ready for a long, long time.",happy,happy,0.541455
+"Come and kiss me, darling, before your body rots and worms pop in and out of your eye sockets.",happy,happy,0.488535
+"Yeah, I don't intend to stop trying.  I just--I don't when is when enough is enough.",angry,angry,0.669939
+"Sir,",neutral,angry,0.626632
+No.  No.  I don't know. You know what? I'm going to call my lawyer. You know what?  That's what I'm going to do.  I'm going to call my lawyer and have him get down here and explain to you that this is an unacceptable option.,angry,angry,0.806475
+"Oh, we're not hiring at this time or thank you, we already have your information on file--We'll call you when we're ready.",angry,angry,0.666032
+What's the meaning in that?,neutral,neutral,0.567720
+I know. So we're gonna take it--Like we're not gonna get married right away--'Cause we want to like have plenty of time to plan everything out,happy,happy,0.344600
+"So you could----speak with me some more, you could call back later on maybe.",neutral,neutral,0.437449
+Cindy?  Cindy what?,angry,neutral,0.489032
+"No, no, no. You don't understand. This is--these are my belongings in the luggage. And I went to Paris.",angry,angry,0.544856
+"And last year, I remember distinctly you said, you were so excited to get here that you don't remember you stubbed your toe until we were in the car.",neutral,happy,0.837489
+"I don't know how else to leave it.  What, do you want me to lie to you?",sad,angry,0.557542
+"Well, it seems silly to go on and on in such a thing.",neutral,neutral,0.361956
+Good.,neutral,happy,0.597368
+"Alright, I don't know what to tell you right.",angry,angry,0.348405
+I'm getting married.,happy,happy,0.595002
+"No, we won't.  It's pointless.  It's like waiting up to see Santa Claus.",angry,angry,0.703041
+"Oh, what shall we do if they suddenly walk in on us?",neutral,neutral,0.754453
+I want to talk to your supervisor.,angry,neutral,0.504480
+You never did.,angry,angry,0.636557
+"She's not his girl, Joe.  She knows she's not.",neutral,angry,0.592075
+You are quite insufferable. I suppose it's because you're drunk.,angry,angry,0.708146
+"On this, I would.",neutral,neutral,0.695221
+That is great.  You look radiant.  I should've guess.,happy,happy,0.974958
+"I just, I see all these other people getting commercials and work and it's like I'm not getting anything.",sad,sad,0.509886
+"Well what does it all mean?  That's what I ask myself in my quest for ultimate truth.  Dear God, what does it all mean?",happy,neutral,0.499920
+"Like, now that I'm accepted, it's just, like, such a huge load off my mind.",happy,happy,0.721586
+"Yeah. I guess there is. I guess I was, but uh- it's going from me now.",sad,sad,0.697827
+You know.,neutral,sad,0.584367
+[LAUGHTER],happy,happy,0.842203
+"My dear, I do believe you're talking nonsense.",neutral,angry,0.497520
+yeah.,neutral,neutral,0.372305
+"Movies- movie, we'll go to a movie and a dinner and- and",happy,neutral,0.477172
+No.  I think you might be right.  Maybe this is the spot after all.,happy,happy,0.574896
+"Yeah but that moment on the beach is the highlight of their little lives, all that flopping around is laying eggs or what you- mating or spawning or something like that.",happy,neutral,0.487625
+"No, of course. Yours and mine. Our flashlight. Yours and mine. Mi flashlight is su flashlight. Naturally.",neutral,neutral,0.571397
+"How long with it last, this ludicrous overbearing love of ours?",neutral,neutral,0.598837
+I can't help it!,angry,angry,0.509710
+I'm--every lead that I get ends up just being a dead end.  You know what I mean.  People are sick of me calling--,angry,angry,0.680239
+"I mean, don't you want to see it?",neutral,neutral,0.340691
+"No, but you come--you come to the D.M.V., it's something-- You should've- You should've figured--",angry,angry,0.498644
+To hell with that.,angry,angry,0.893895
+Then I came back and it was incredible.  There was no meaning in it here.  The whole thing to them seemed like sort of a bus accident.  I went to work with Dad and that rat race again.,sad,sad,0.454992
+"Two artists, though.  We're bound to be poor forever.",happy,sad,0.604803
+"and so, I mean, I got in.",happy,neutral,0.368826
+or some- some large percent of- of success.,neutral,neutral,0.873661
+"For instance, one time, it had to have been raining several days. There was this one kid, he came up to me and he gave me his last pair of dry socks. Put them in my pocket.",sad,sad,0.481164
+I will not. Go away. Go away. I hate you.,angry,angry,0.918615
+Hi.  Thanks for waiting.,neutral,happy,0.924200
+"Um, actually, I don't know. I don't know. Oh really?",neutral,neutral,0.360593
+Because you know what Carla?  You know what you get?  This.,neutral,angry,0.471991
+because I am not getting married.,happy,angry,0.571764
+okay fine.,neutral,neutral,0.418611
+I want to talk to a supervisor,angry,neutral,0.823405
+"Oh, Chris, I've been ready for a long, long time.",neutral,happy,0.559927
+"I- They have like--they just have so many like prestigious like this school is top ten and like the departments within it, you know what I mean.",happy,happy,0.480026
+You're not sorry you came.,neutral,neutral,0.448843
+Wow.  This is an incompetent airline isn't it?  Are you--?,neutral,angry,0.434888
+"Well, thank you.",neutral,happy,0.929687
+[BREATHING] that's good.,neutral,happy,0.826905
+"All right. Just- Sit down, mom. I want to talk to you.",angry,angry,0.430116
+I just-- I,angry,angry,0.613208
+"Yeah, I understand, but-",neutral,sad,0.476388
+"You're a mean, evil minded, little tempered witch. I hope to God I never set eyes on you again as long as I live. Whore.",angry,angry,0.779419
+I will do no such thing.,angry,angry,0.548011
+"Hey, Isabella.",neutral,neutral,0.431066
+"I can't help it.  I know her best.  I mean, I grew up next door to her.",neutral,sad,0.381700
+yeah.,neutral,neutral,0.372305
+"Oh, very amusing, indeed. Amanda, listen-",angry,happy,0.460444
+What?,neutral,angry,0.625192
+"But, I don't know, I--it's so weird to think I'm marrying somebody 'cause I feel so young, you know?",happy,sad,0.509356
+I guess he is.,neutral,neutral,0.352360
+"And I remember thinking this is it.  At last, at last I'm as happy as I'm supposed to be.",sad,sad,0.467251
+Yeah.,neutral,neutral,0.372305
+"How is she going to feel the first year in school, no mom.",sad,sad,0.380618
+"Oh, yeah, absolutely.  You know, and especially because you've been waiting so long and I know that, um, you've been having a difficult time.",neutral,sad,0.505005
+I know. I know. So fun.  I can't wait.,happy,happy,0.933225
+"I want a family.  I want kids.  I want something that I can give myself to.  Annie's in the middle of that.  Now, where do I find it?",neutral,angry,0.433175
+"Oh, well, I'm sorry about that. Umm- We-",neutral,sad,0.722624
+I feel like I'm not doing anything. Like I'm not giving anything into this world.,angry,angry,0.450276
+You can talk yourself blue in the face but there's no body and there's no grave.  So where are you?,neutral,neutral,0.471686
+"There's nothing to it.  We come down here.  The grunion arrives and they do their little fish thing.  And we say, Oh, wow.  Look at the little fish.  They go home, we go home.",angry,angry,0.454651
+"We'll be alright, darling.  Whatever happens, aren't we?",neutral,happy,0.415535
+"Actually, now that you mention it.  No, I don't.",happy,angry,0.564817
+Are you- I mean do you like get dressed up and everything when you go to the job interview?,neutral,neutral,0.522385
+I mean I don't know just go out and keep trying. Just-,neutral,angry,0.348894
+Hello.  Thank you for calling Dell Taco Corporate.  Can I help you?,happy,happy,0.855137
+And I guess that included you.,sad,sad,0.563170
+Okay. You know--you know where?  Or--,neutral,sad,0.381350
+"I just, I don't know.",sad,sad,0.580357
+This is the end.  Finally and forever.  Do you hear me?  The end.,angry,sad,0.468014
+How did you know?,neutral,neutral,0.554510
+"It's PR, somebody sold you a bill of goods that this wonderful event is going to occur on the beach.",neutral,neutral,0.515942
+"Meaning that sacred and beautiful thing, love?",neutral,happy,0.601103
+The business?  The business doesn't inspire me.,angry,angry,0.831671
+No.  You don't.  I'm a pretty tough guy.,neutral,angry,0.627140
+"trying to get an answer, and no one's given me an answer.  So what are you going to do about it?",neutral,angry,0.468431
+"Right, that--that gets taken care of-- That gets taken care of.  We get we do, you know, we investigate those and just make sure that um- they're not doing their own thing with them so--uh",neutral,neutral,0.376402
+"Oh, I've made her that excited.",neutral,happy,0.961623
+I hope the moon stays out.  I wonder do they always run during a full moon.  I can't remember if it was full last year.  Remember?,happy,happy,0.515108
+It's ridiculous.,angry,angry,0.750856
+I don't want to argue with him but it's time that he realizes that Larry's not coming back anymore.,angry,angry,0.624973
+And how long is that going to take?,angry,neutral,0.723305
+"Yeah, but what if I never make it? What if I studied all my life, this theatre, this acting, and I'm never going to get anywhere. I'm never going to be able to have a job.",angry,angry,0.347678
+You're crazy.,neutral,happy,0.435661
+Fine.,neutral,neutral,0.426581
+She'll be like--flowers and the--,happy,happy,0.424072
+"and I need assistance with my...not only is my work phone, it's my home phone and look,",angry,angry,0.475028
+Just about all.,sad,sad,0.750073
+"Adders don't snap, they sting.",angry,angry,0.593987
+I know I'm leaving you here with all the responsibility but at least you get to be with her.,angry,sad,0.494746
+"Oh, sweet.",happy,happy,0.496011
+"Well, you better make sure your father's not- No- I'm just saying.",angry,angry,0.400186
+Yeah.,neutral,neutral,0.372305
+"Oh, is that-is that-now, is that just foam, uhh, I can't even tell.",happy,neutral,0.274776
+Uh-huh.,neutral,neutral,0.413476
+"What's going on here, Joe?",angry,angry,0.583633
+Okey So I'm doing something wrong.  What am I doing wrong?,angry,angry,0.525309
+"He's dreaming of him again, walking around.",neutral,neutral,0.494342
+"Yes sir, Yes.",neutral,angry,0.389830
+You can't leave your daughter alone like this.,sad,sad,0.371671
+"like all they have And I was like, what's going on?  And he like takes my hand and pulls me into the middle and he's like--you know, get's on his knee and everything--And says will you marry me? And I flipped out.",happy,angry,0.339964
+I'll get you- I'll get you a bottle of mace.,neutral,angry,0.399054
+Well I filled out all the forms and I've given them to everyone and they keep sending me to someone else.,angry,neutral,0.473038
+And you'll be fully loaded.,neutral,neutral,0.737589
+I knew nothing of the sort.  You took presents from him.,neutral,angry,0.437990
+I don't think I'm anyone.,neutral,angry,0.490487
+"No, no I'm just like you.  I thought it was going to be all peaches and roses and sand in our hair and wind in our",angry,angry,0.515112
+I've been a sucker too long. I'm through with it.,neutral,angry,0.468595
+What's bugging you?,angry,angry,0.803098
+That's my point too.,neutral,neutral,0.801272
+Well I'll come back.  What is that supposed to mean?  You're not willing to wait for me to come back?,angry,angry,0.516996
+I'm not starting over again.  No I have done this five times.  I am not starting over again.,angry,angry,0.783735
+You know Larry is not coming back and I know it.  Why do we allow him to go on thinking that we believe with him?,neutral,angry,0.517983
+There is no point in coming down here.,neutral,angry,0.455848
+"what The lady, what? the janitor?",angry,angry,0.739548
+Look,neutral,neutral,0.902994
+You know it's not just my business.,angry,angry,0.679657
+But it- it is for a year.,sad,neutral,0.358153
+"Well, Sure.",angry,neutral,0.303855
+You don't look like you're going to faint.,happy,happy,0.514691
+You are so high and mighty.  I just--,angry,angry,0.440295
+I did not hit you very hard.,neutral,neutral,0.593199
+Why has to be you?  There's all those other people.  Somebody else can go instead.  It's not right.,sad,angry,0.432502
+how many?,sad,neutral,0.850299
+"Ah, sometimes you infuriate me.  You know that?  I mean, isn't it your business too if I tell Dad and flips--freaks out about it?  I mean, you have such a talent for ignoring things.",neutral,angry,0.650255
+I just don't.  It's stupid.,angry,angry,0.870243
+Why me above all?,angry,angry,0.620486
+"Yeah, but you were there all the hospital days. By his bed-",sad,sad,0.342203
+What?  She could be just as excited as I am right now.,neutral,happy,0.624602
+Very Midsummer Night's wedding.,happy,neutral,0.798770
+I mean you can take those things out of war but,neutral,neutral,0.750285
+[BREATHING],angry,neutral,0.448108
+"No, I mean, maybe in the little--going around thingy thing where bopper stole it from there.",angry,angry,0.417330
+"What time is it?  I think it's supposed to run around midnight, right?  God, this is great, isn't it, Carla?  Look at this night we got here, huh.",neutral,happy,0.360455
+"No I don't want a-  Your father thinks he's coming back, Chris.  If you marry that girl, you're pronouncing him dead.",angry,angry,0.782535
+"Oh, that was quite a rouser, wasn't it?",happy,happy,0.488484
+Okay well that's not a happy part.  We don't want to talk about that.,happy,angry,0.530131
+"Um, I have kids.  I have to take them places on the weekends.  I don't have time to come back here.  Please.  I really need you to help me.",angry,angry,0.341949
+"Everybody's told the same story.  It keeps us coming back for more, it keeps us excited.  We keep thinking that life is going start at any minute if we can just find the right spot, get in on the action.",neutral,happy,0.641340
+"They're six months old. Six months old, they're tiny.",neutral,neutral,0.728421
+"It was horrible, but you've made it much better, thank you very much. Absolutely",happy,happy,0.846058
+Pass up what? A bunch of fish. They swim up to the beach and they flop around and they swim away and then they die.,angry,angry,0.631365
+Calm yourself.,angry,angry,0.722974
+"But, without your drive--where-where- what about your identification without your driver's license?  I mean, you need--you needed something before then?",angry,angry,0.542315
+I have done everything everyone in this entire place has told me to do.  I've been here for over an hour.  They make me wait in line.  Every single time I start over again.,angry,angry,0.500070
+"Yeah. I know. It went out of style, didn't it?",happy,sad,0.466780
+"It's just fish, it's nothing to get traumatized over.",angry,angry,0.504803
+"You must have a riotous time, no restraint at all, very enjoyable.  I mean, you never had much anyway.",angry,angry,0.563949
+Why not?,neutral,neutral,0.532794
+"Annie, I love you.",happy,happy,0.962633
+"Okay.  No, that's dorky.",happy,happy,0.791304
+"Yeah, we'll call them.  We'll figure something out.  I'm sorry, I'm sorry, I'm sorry.  You're right.",sad,sad,0.495338
+"Well, maybe, maybe he just wanted to see her.",neutral,neutral,0.381247
+But this isn't anything like I thought it would be.,sad,sad,0.357075
+Three weeks?,neutral,neutral,0.757976
+"It felt wrong to be alive-to open that bank-book; to buy that new car; to look at that new refrigerator.  I mean, you can take those things out of the war, but if you drive that car, you have to know that that comes from the love that a man has for a man.  And you've got to be a little bit better than that!",sad,sad,0.587452
+"Then, he's gone forever-you're sure?",neutral,sad,0.338797
+"But the pennies always get you because you end up spending like, you know, fifty bucks.",neutral,neutral,0.655515
+The worst one was in Cannes when your curling irons burnt a hole in my new dressing gown.,happy,angry,0.719702
+and dance naked in the place Place Vendome and rush away with all the men in the world and I shan't say a word as long as you love me best.,neutral,happy,0.800744
+"Yes, it is.",angry,neutral,0.333602
+Calm yourself.,angry,angry,0.722974
+"Just dancing barefoot in the sand, drinking champagne out of the bottle.",sad,sad,0.375145
+"I won't.  Let go, let go of me. Listen, listen?  I'm sick and tired of listening to you, you sadistic bully.",angry,angry,0.897697
+yeah.,happy,neutral,0.372305
+I know.,sad,sad,0.632034
+"Uhuh. Uhuh. Yeah, yeah. Good quote.",angry,happy,0.914963
+"The trouble is you don't see enough women, you never have",neutral,neutral,0.424881
+"Anne, I love you.  I love you a great deal.  I love you.",neutral,happy,0.983970
+What's he going to say?  Maybe we ought to tell him before he sees it.,sad,neutral,0.370988
+"I don't know why it is, but every time I reach out for something I have to pull back because I am afraid other people will suffer. My whole bloody life, time after time.",angry,fear,0.495999
+Yeah.  But he'll have like a long visa.  Can you go visit then for a long time?,neutral,neutral,0.668999
+Okay.,neutral,neutral,0.454169
+"I mean, is there somebody you can call?  Or the guy that put the stuff on the--on the plane.  I mean, are they--they must be really irresponsible to have just disappeared my baggage.  I mean, did it get stolen?",angry,angry,0.430987
+It must be them then.,neutral,neutral,0.913367
+"I think you're just gonna--you're gonna have to get 'em and then you can back and then, we'll help you out.  Maybe, we can-",angry,angry,0.524681
+"I don't want a diagram.  Umm-- He thinks he's coming back, Chris.  You marry that girl and you're pronouncing him dead.",angry,angry,0.808262
+He is thinking about him again.,sad,neutral,0.705910
+"I don't know how I feel about that, but-",happy,sad,0.633773
+It went on intermittently for days.,neutral,neutral,0.841973
+She's not his girl.  She knows she's not.,angry,angry,0.592282
+And I felt what you said- ashamed somehow-because nobody had changed at all.  It seemed to make suckers out of a whole lot of guys. and,sad,sad,0.814097
+"Yes, it is.",neutral,neutral,0.333602
+"Oh, very interesting.  How about a child of three or a child of six?  How about a child of nine?",neutral,neutral,0.458136
+What do we do if they suddenly walk in on us?,neutral,neutral,0.648526
+A new carpet? A poodle?,angry,neutral,0.834084
+Oh Augie,angry,neutral,0.656698
+How can I guarantee finding your luggage when it's lost?,angry,neutral,0.566505
+I'm embarrassing you and I didn't want to tell it to you here.  I wanted some place we'd never been before.  A place where we'd be brand new to each other.,neutral,neutral,0.365373
+No.,neutral,angry,0.443268
+Did you see much of Peter Burden after our divorce?,neutral,neutral,0.753616
+Maybe we can still do that,angry,neutral,0.508414
+I don't think there's anything we can do.,sad,sad,0.557196
+"That will be, It'll be--it'll be better that way. I mean Time will tell.  Time heals, you know, and it's good.  It's okay.  I mean, it wasn't anybody's fault or anything like that so .",neutral,sad,0.356861
+"No, we won't.  Augie it's like waiting for Santa Claus to come.  I feel like I am going to spend my entire life standing on the beach with my eyes wide open and my hands clasp expectantly in front of me waiting for the fish to show up and the fish will not show up.",angry,angry,0.532654
+"And I had this idea as I was watching them go down.  Everything was being destroyed, you know, but this one thing was being made.  It was kind of a monument, it's kind of responsibility, man for man.",neutral,sad,0.679822
+"Well how long will it last us, this ludicrous overbearing love of ours.",neutral,neutral,0.380797
+I just think browns are really what you want to go with.  I mean I think there's more contrast between brown and green than there is-,neutral,neutral,0.599525
+For real?,neutral,neutral,0.866032
+"You're quite insufferable, I expect it's because you are drunk.",angry,angry,0.711726
+I thought you wanted to see it.,angry,neutral,0.443614
+"I mean you keep saying ,my flashlight, as if it's somehow just yours.  How's that suppose to make me feel?",angry,neutral,0.423424
+Every phone...every single phone company?,angry,neutral,0.833368
+"If I must laugh at everything, I must laugh at us too.",neutral,neutral,0.507719
+...dumber than you.  I mean they're a lot worse off than you.  You are much better off than like a lot of those people in there. I know,neutral,angry,0.615807
+Don't you guys have access to computers over there.,neutral,angry,0.598919
+"-just going and auditioning and auditioning and rejection after refection, it's like--",angry,neutral,0.462481
+He loves you.,happy,happy,0.780542
+We'll figure something out.  We just have to ... we just have to think about this.  Could any of your family help us?,sad,neutral,0.450335
+Total turn on.,happy,neutral,0.900671
+You can hardly call three liqueur glasses of brandy in a whole evening going on and on.,neutral,neutral,0.506996
+Did you lock- Did you lock it even? You probably didn't even lock it.,angry,angry,0.510259
+"You think this is what I had in mind?  You think that when I propose I had this great fantasy going that four years down the road, we will end up on a beach arguing over fish. You think that I knew that there would be times when you will look at me like I am used Kleenex?  Or that I will look at you and think, holy hell what's the next flight to Alaska.",neutral,neutral,0.502287
+"Well, I'm not a miracle worker.  I don't know what I can do for you.  I don't have the bag right here.",neutral,angry,0.496982
+"Darling, come here and kiss me before your body rots and worms pop in and out of your eye sockets.",happy,happy,0.465281
+"Yeah, I think so.  I mean, not for a while.",neutral,happy,0.380900
+"Well, get used to it.",neutral,happy,0.676124
+"Tell me, you'd leave the business?",neutral,angry,0.601914
+With your driver's license and your passport.  Just like everybody else.,angry,neutral,0.642497
+Shut up.,neutral,angry,0.936469
+She's been in New York for three and half years.  Why all of a sudden?,neutral,neutral,0.693483
+What time is it?  They're supposed to run around midnight.,happy,neutral,0.592015
+"Uh-huh, uh-huh.",neutral,neutral,0.349105
+"I don't want a house, I mean just-",happy,angry,0.660984
+I don't see what's the point of going on and on about something like this.,neutral,anxious,0.364397
+Flippancy brings out the acid in their damn sweetness and light.,neutral,neutral,0.875294
+Have you asked Annie yet to marry you?,neutral,neutral,0.602577
+They snap.,neutral,angry,0.516096
+What does it all mean?  That's what I asked myself in my ceaseless quest for ultimate truth.  Dear God what does it all mean?,neutral,neutral,0.507455
+like I said before right now.,angry,neutral,0.535962
+And I thought that if I waited then dad would forget about Larry and then we could have a regular wedding and everything happy.,neutral,neutral,0.476015
+Sometimes you infuriate me.  You know that?  Isn't it your business too if I tell this to father and he throws a fit about it.,angry,angry,0.721295
+I will never forgive you.  Why did you wait all these years?  All I did was sit and wonder if I was crazy for thinking of you.,happy,neutral,0.343950
+"No, we won't.",neutral,angry,0.565026
+You didn't ask her yet?,angry,neutral,0.572003
+You can see right over the water.,happy,neutral,0.575494
+Whoa.  What an idea.  Where would you want to live?,happy,happy,0.466165
+"Well, if you hadn't been so suspicious and nosey, you never would have known a thing about it.",neutral,neutral,0.756398
+Why did he invite her here?,neutral,neutral,0.536799
+...it would be so much better if we can--if we could stay together somehow.  You know--we could--we could do this together.,angry,sad,0.389767
+What flashlight?,neutral,neutral,0.819338
+I want you now Annie.,neutral,neutral,0.544302
+I completely understand.  Automated systems are very difficult sometimes.,neutral,neutral,0.420287
+No.,neutral,angry,0.443268
+That's how you want to leave it?,angry,neutral,0.351096
+"I don't know. Well like, I don't know. I mean-",neutral,sad,0.457997
+And you couldn't find it?,angry,neutral,0.381965
+Okay but it's fish who do something none of the other fish do,angry,neutral,0.778545
+"Carla, can I ask you something? Don't take this wrong, but are you having your period?",neutral,neutral,0.548964
+I knew nothing of the sort. You took presents from him.,angry,angry,0.437990
+ditsy valley girls and,neutral,neutral,0.907255
+Yep.,neutral,happy,0.502452
+What is your name?,angry,neutral,0.642468
+I don't see why you want it.  You've already had two glasses.,neutral,angry,0.631509
+Shit. That's-,neutral,angry,0.715208
+"Sherlock Holmes.  God, where's my luggage?",angry,neutral,0.559696
+You knew there was nothing in that.,neutral,neutral,0.600817
+Wouldn't you want to?,neutral,neutral,0.450031
+"All right. All right. Just come on, sit down.",angry,angry,0.418500
+"Look, I don't want to be transferred over to another- All I want to do is just give you my name and address so you can send me a check.",angry,angry,0.693142
+"You above all, have got to believe, Joe.",neutral,angry,0.480745
+Isn't there anything you can do?  Just call over and ask them if I can go to the front of the line in the other line.,angry,angry,0.513142
+Fine.,neutral,neutral,0.426581
+"Well, what of it?",neutral,angry,0.453890
+That's going to be a lot of work.,happy,neutral,0.490373
+"You think this is wrong, this chair, this yard.  I want you to be ready for me.  I don't want to win you away from anything.",neutral,angry,0.469185
+"So, if you wanna go get your birth certificate, um, maybe come back--I don't--maybe you can talk to the person in the--in the front of line maybe.  I don't know.",angry,angry,0.392883
+"Well, I burnt a hole in my comb too, and all the towels in the bathroom. [LAUGHTER].",neutral,happy,0.804610
+"I don't know ""sigh"".",sad,sad,0.486572
+"Tomorrow, tomorrow, tomorrow-",happy,angry,0.400187
+All the futile moralists who try to make life unbearable.,neutral,angry,0.602099
+What's he gonna say?  Maybe we ought to tell him before he sees it.,neutral,neutral,0.407106
+How many?,sad,neutral,0.850299
+What are you going to do that's any different than anybody else?,neutral,angry,0.512347
+Oh.  My name is Sean. Hi.,neutral,neutral,0.727793
+That's like the whole purpose of you being here.,neutral,neutral,0.697243
+"she's who I know best. I know her since I- I was a kid I grew up with her.  When I think of somebody for my wife these days, I I think of Annie.  What do you want, a diagram?",angry,angry,0.435415
+You were standing at the beginning and you directed me.,neutral,neutral,0.647065
+Big bad acceptance packet with all the information.  I'm going to U.S.C..,happy,neutral,0.360157
+Don't laugh at me; I'm serious.,neutral,angry,0.531057
+What was he doing out here at four in the morning?,neutral,neutral,0.692206
+"oh, good good good good good good.",happy,happy,0.947037
+Wait a minute.  I've got it.,neutral,neutral,0.546760
+There's so many things mixed up.,sad,sad,0.693370
+"I mean it's not really free because you have to pay for it, but yeah.",neutral,neutral,0.357831
+"I really want to say that. Well I, so, you know, at the center department they called me in and I talked to-",neutral,sad,0.301197
+"because my bag was very easy to keep track of.  It's got big, you know, rainbow colored crap all over it and no one was paying attention because now it's just gone.",angry,sad,0.543542
+For real?,neutral,neutral,0.866032
+Yes.,neutral,neutral,0.451630
+"Yeah, they do.",neutral,neutral,0.317558
+Why not?,neutral,neutral,0.532794
+"So, you will absolutely be in a high rated great hotel and we can make sure that it's in a area of town that you like as well.",neutral,happy,0.932088
+Yeah.,neutral,neutral,0.372305
+I feel so alone even around people,lonely,sad,0.889662
+"So what, I'm not fast with women.",neutral,angry,0.819604
+okay.,happy,neutral,0.454169
+However I believe the real cause of that row was Peter Burden.,neutral,neutral,0.821738
+You're testing my goddamn patience.,angry,angry,0.873597
+'Cause you started to write me.,neutral,neutral,0.718299
+"Like Larry's brother.  Do it like you, Chris.",neutral,neutral,0.521967
+"Well if she does, then that's the end of it.  From her letters, I think she's forgotten him.  I'll find out.",angry,sad,0.359439
+"Yeah, it's pretty good.",happy,happy,0.886480
+I have been waiting for over an hour.,angry,neutral,0.666923
+It's not your flashlight.,angry,angry,0.607595
+"Well, I guess that's why I came.",happy,happy,0.462117
+You're the only one I know who loves his parents.,neutral,happy,0.853075
+Some people.,sad,neutral,0.767443
+I just- I know I don't make you happy.,sad,sad,0.630547
+Yeah?,neutral,neutral,0.459896
+"Oh, you have to be inspired.",angry,neutral,0.538447
+"Oh, You are so insufferable.  Do you stop.",angry,angry,0.865235
+Out there someplace there's this huge mass of silver fish heading this way.  They don't know why.  We don't know why.  It wasn't a decision.  They didn't take a vote.,happy,angry,0.513601
+"Look, Augie, we've never seen them. They're never going to come.",angry,angry,0.537002
+"As far as your father is concerned, he's not dead.  And she's still his girl.",neutral,neutral,0.636551
+It's all I ever knew how to do. I can't quit now.,sad,angry,0.342637
+And palm pilot.,neutral,neutral,0.925365
+Let's savor the delight of the moment.  Come and kiss me darling before your body rots and worms pop in and out of your eye sockets.,neutral,happy,0.818793
+Look it's a nice day.  What are we arguing for?,angry,angry,0.628214
+Horrible little thing. I hated it.,neutral,fear,0.431238
+No. I need another set of ID to prove this is actually you.,angry,angry,0.567523
+"All I want to do is put my, pay for my freaking credit card, and there's something wrong in my bill, Like I swear, it says I didn't paid last month, but I know I paid last month.",angry,angry,0.817141
+"Well, I have an idea, but go on, tell me, what's the story?",neutral,neutral,0.436032
+"Wait, You can move up.  There's management programs in McDonalds and things like that.",neutral,neutral,0.550371
+Why?,angry,angry,0.498711
+No.  I thought it was best to leave him alone.,neutral,sad,0.712335
+Thanks. Thanks a lot.  You're really helping the Excitement here. I hope no one dies.,happy,happy,0.991064
+"Like Larry's brother.  Do it like you, Chris.",neutral,neutral,0.521967
+I'll do no such thing.,neutral,angry,0.516071
+I feel frightened and on edge,fear,fear,0.869674
+Yes it is.,neutral,happy,0.401332
+"What do you mean?  I was the first one up, he was still in bed.",neutral,neutral,0.668968
+"Now, you can go on with this if you know where to go, but I don't know where to go.",neutral,angry,0.355789
+"Uh, well some-some of the bags were--were lost on the way over here. uh-",neutral,sad,0.493664
+About four this morning.  I heard it crack and I looked out the window and he was standing right there when it cracked.,sad,sad,0.521363
+I know.,neutral,sad,0.632034
+"Yeah, I always think so, but I- I just feel like it's a lot of lip service everywhere I go.",angry,angry,0.435319
+it's not like it just disappeared into thin air. Somebody wasn't paying attention,angry,neutral,0.483103
+No.,angry,angry,0.443268
+"Yeah, maybe if you were with someone else too.",angry,sad,0.371507
+"Augie, anything I do I'd rather be doing with you.",angry,neutral,0.442483
+[GARBAGE],neutral,angry,0.490732
+"I understand that, ma'am but there's not really much I can do for you right now.",angry,angry,0.576833
+Right.,neutral,neutral,0.588960
+We're going to be in the middle of the wilderness. These kind of things happen,neutral,neutral,0.694570
+"Oh, that reply has broken my heart.",angry,sad,0.871289
+So it's all right then?  I should just go ahead with it?,angry,neutral,0.391731
+"Um, okay, it didn't--didn't come out on the carrousel--",neutral,angry,0.457839
+you might have an older phone where we would use sim cards but probably not.,neutral,neutral,0.767518
+"For one thing, your mother much as told me to go.",neutral,neutral,0.592807
+"Uhuh, uhuh.  He won big and he-and he realized that the only thing that would make it better was me as his bride.",happy,happy,0.453078
+"'Cause you mustn't feel that way.  Because you have a right to everything that you have.  Do you understand that?  Everything, Chris, and me too.",neutral,angry,0.344092
+"You'll videotape everything, yeah?",sad,neutral,0.546124
+"You guys were pretty close, weren't you?",sad,sad,0.350100
+"It's that the trouble is those God damn newspapers.  Every month some new boy comes back and so the next one is going to be Larry, they just--",neutral,angry,0.557112
+"Just a little perhaps, nothing serious.",neutral,neutral,0.753042
+I wanted to get this settled first.,neutral,neutral,0.730183
+"Well, I suppose the people downstairs then.",angry,neutral,0.718676
+"I know.  I was like, how did he get--like he must have called someone or had them set--like, I have no idea.",neutral,sad,0.490127
+we're just pooling our funds together.,neutral,neutral,0.823225
+"So I'm just supposed to oh, well, oops, my luggage is gone and be fine with that and take your stinking fifty dollar voucher?",angry,angry,0.778062
+Oh.  I'm saving the environment. I'm riding this car because I- I want to.,angry,angry,0.546481
+I'm gonna ask her to marry me.,neutral,neutral,0.503332
+"Hey listen,eh- I've been wanting to talk to you. I have something to tell you. How's Amy doing?",neutral,angry,0.336210
+What was he doing out at four in the morning?,neutral,neutral,0.708357
+What?  Who says that?  Bananas don't grow overnight.,angry,angry,0.640755
+No.  You don't.  I'm a pretty tough guy.,angry,angry,0.627140
+"There's nothing to it.  We come down here.  The grunions arrive.  They do the little fish business.  We go oh, ah look at the fish.  They go home.  We go home.",neutral,angry,0.621450
+She's been in New York three and a half years.  Why all of the sudden?,neutral,neutral,0.705503
+We weren't in a good spot.,neutral,angry,0.370073
+"Oh, okay, yeah.",neutral,happy,0.274512
+"Well, so what?",neutral,neutral,0.453532
+"Well, it's like any kind of insurance.  You don't-when you get it, then you get more. You know, Like if you--",neutral,angry,0.371767
+It's become a habit with you.,neutral,neutral,0.610057
+"Well, exactly.  Money is not everything.",neutral,angry,0.409046
+I will come back.,sad,neutral,0.331080
+They sting.,neutral,neutral,0.460584
+When?,neutral,neutral,0.827598
+I'm going to ask her to marry me.,neutral,neutral,0.392584
+I've been trying to work this backwards but I can't seem to pinpoint the moment when we took a turn for the worse.  You were fine during the phone call from Marge.  Dinner was okay.  Doing the dishes was no problem.,angry,angry,0.373183
+It just is. I-,neutral,angry,0.544204
+"Well, I need--I need you to be able to do this for me 'cause I can't do anything about it.",sad,angry,0.394220
+Only a trivial little broach.,neutral,neutral,0.876255
+It's just some little instinctual time-release firecracker that went off inside them and all this one they turn around and form a line as long as the California coast and just started swimming.,happy,happy,0.576946
+Just last week a man showed up in Detroit missing longer than Larry.  You read it yourself.,angry,neutral,0.719623
+I'm gonna forget him.,sad,sad,0.813394
+That's helpful.,neutral,happy,0.920383
+"Yeah, I like the autumn.",neutral,happy,0.845857
+"I understand that.  The best I can do for you, at this moment, is give you fifty dollar check courtesy of Northwest Airlines for inconveniencing you in losing your luggage.",angry,happy,0.350470
+Yes.  Yes.  with all his might.,neutral,happy,0.606444
+"Um, It doesn't seem to have worked such wonders with you.",angry,angry,0.395339
+That's fair enough.,neutral,neutral,0.455143
+Turn it off.  It's driving me mad.,angry,angry,0.908608
+"Maybe if you were with someone else, too.",sad,neutral,0.396409
+Three days?,neutral,neutral,0.786002
+I don't understand you do I?,neutral,angry,0.519641
+"Actually, we are not necessarily liable to give you- to even give you this fifty dollars so... it's actually- it's actually really",neutral,angry,0.525750
+"Ah, it send shivers up my spine.",happy,happy,0.731006
+Mind your own business.,angry,angry,0.857358
+What time is it?  They're supposed to run around midnight.  This is great isn't it?  Look at this night we've got here.  It couldn't be better.,happy,neutral,0.307050
+"I mean, he was like really conscious right up until the end. you know",sad,neutral,0.482381
+"Such a sweet person, you know?",sad,sad,0.421643
+I don't see why you want any.  You've already had three glasses.,neutral,angry,0.608082
+I-I love you. I have no imagination. That's all I know how to tell it.,happy,happy,0.847138
+"wanted some place we'd never been, a place where we'd be brand new to each other.",neutral,neutral,0.798057
+"Oh come on, it gave him a lot of pleasure and it didn't harm me.",neutral,happy,0.644980
+"Now, listen Kate.",neutral,angry,0.687670
+"Well, I mean,",happy,neutral,0.420750
+Which one?,happy,neutral,0.783491
+And he could of...  He was pretty awesome,sad,happy,0.988638
+You know I've been waiting here for four hours for my luggage,neutral,neutral,0.621184
+You started to write me.,neutral,neutral,0.648412
+What was he doing out here at four in the morning?,neutral,neutral,0.692206
+At the cemetery?,sad,neutral,0.592441
+"No, I have to go.",sad,sad,0.377491
+I will go ahead and I will take- I will take,angry,angry,0.421964
+You can't read her mind.,angry,neutral,0.623001
+"At this moment in time, all I can do for you is give you-",angry,angry,0.334240
+And a taser and a knife.,neutral,neutral,0.891416
+"You needn't be so grand, just because you don't happen to want any yourself at the moment.",angry,angry,0.607945
+Or not.,happy,neutral,0.652104
+"Must be them, then.",neutral,neutral,0.859397
+"Well, so let's go.",neutral,angry,0.384337
+He was my brother.,sad,neutral,0.563233
+"Yes, I did quite a bit.",neutral,happy,0.464540
+so I was there for him.,sad,sad,0.664913
+Well you want to make sure that your father is not going to --,neutral,neutral,0.471626
+Well what?  Want me to breath in your ear?,angry,neutral,0.495663
+You think it's them?,neutral,neutral,0.651266
+"Oh, very interesting indeed. How about a child of four or a child of six or a child of nine. We might have a splendid little debate about this intemperate tots.",neutral,happy,0.568128
+I wanted to get this settled first.,neutral,neutral,0.730183
+you're getting very excited right now,angry,happy,0.980003
+That's ridiculous.  I don't believe that.,neutral,angry,0.841232
+"Hey, what's up?",neutral,neutral,0.506854
+I could hear him right through the floor of my room.,sad,neutral,0.453110
+"[LAUGHTER] God, it sent shivers up my spine.",neutral,happy,0.922506
+"Right, being like oh, where are you from?  The U.S.  Where in the U.S.?  Chicago.  Where in Chicago?",happy,neutral,0.576445
+Wait.  What?,neutral,neutral,0.457336
+"Oh, thank you, dear.  The same applies to you except that if I catch so much as looking at another woman, I'll kill you.",happy,happy,0.850675
+Can we for real live together?,happy,neutral,0.714226
+"When I was seven, my- my grandmother died and I really- I don't know, I mean it was really hard to let go but the important thing is- is that you do let go and your realize that, you know, they- you know, they- this person had fun while they were- while they were here and, uh, you know, you work- you work through it.",sad,sad,0.467700
+Shall we always want to bicker and fight?,neutral,neutral,0.674318
+"Okay, I can do um- a win- -two like a window and a aisle and a window and an aisle next to each other so that each of you can sit two by two. And switch around maybe?",neutral,neutral,0.611769
+My anxiety is through the roof today,anxious,anxious,0.627199
+"Yeah, she loves him.",happy,happy,0.651514
+"For God- Grow up, Augie.  The fish are not going to arrive.",angry,angry,0.538872
+Do you have your forms?,angry,neutral,0.768355
+You serious?,neutral,neutral,0.496038
+Okay.,neutral,neutral,0.454169
+"Pass what up?  I mean these fish swim out of the ocean, they flop around on the beach, they swim away and then they die.",angry,angry,0.557448
+Twice is every time we've tried. That's ever.,angry,neutral,0.423191
+You can just remember it for me.,sad,sad,0.594760
+Okay.  Check.,angry,angry,0.494924
+"I mean, well I mean i don't know; it doesn't really affect my life, you know.",neutral,sad,0.533355
+"I want you now, Annie.",neutral,neutral,0.388502
+"Oh And it burnt my comb, too, and all of those towels in the bathroom.",neutral,neutral,0.543376
+"Well, of course not because you've got your backpack with you the whole time.  Now, if you--you said this was a travel bag.  Why weren't you carrying it on if it was so important?",neutral,angry,0.555006
+yeah.,happy,neutral,0.372305
+"It's when we were driving past that Knickerbocker Liquor Locker, you said, let's get some champagne.  I said no, time's a wasting or something like that.",neutral,angry,0.447039
+"Oh, Augie.",angry,neutral,0.305080
+"All right, but don't think like that.",neutral,angry,0.655772
+You know.,neutral,sad,0.584367
+"I did, I do want to see it.  I always want to see it, Augie.",angry,neutral,0.367984
+"Oh, thanks. move here before you get married [LAUGHTER]",happy,happy,0.985635
+"or, um, campus cruiser.  You can drive people around.",neutral,neutral,0.813403
+"Going out somewhere, dear?",neutral,sad,0.356231
+This is the big night for these guys.  Life's last orgy.,happy,happy,0.758896
+"Obviously, we're not trying to lose your luggage.  Do you really believe that we're trying to lose your luggage ma'am?",neutral,neutral,0.552072
+Okay.  Fine.  So we're in the wrong spot but we're with the right person.,neutral,neutral,0.422863
+I don't know how you can be okay with this?  I don't know why you're not-- you're fine with it.,sad,sad,0.380660
+You still cold?  Do you wanna go home?,neutral,neutral,0.471933
+"Look, I did. I always do. But it's like every time I try nothing ever happens.",angry,angry,0.395311
+To hell with that.,angry,angry,0.893895
+"Well, you know, sometimes that's--really, I mean what else could we do?",neutral,sad,0.403767
+"Look, it's-we just-we're looking at this evening in a different way, both of us. We both have different ideas of it.",angry,angry,0.578527
+"That's a nice point of view, I must say.",angry,happy,0.679750
+Remember when I was overseas?  I was in command of the company.,sad,neutral,0.735849
+"Look at this, all of the hairs are standing up on my arm.",happy,neutral,0.745539
+Because I probably know him.,angry,neutral,0.431840
+"I told myself finally, this is how happy I'm supposed to be.",sad,happy,0.583754
+Just about all.,sad,sad,0.750073
