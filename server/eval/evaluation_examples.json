@@ -1,0 +1,78 @@
+{
+  "examples": [
+    {
+      "id": "ex1",
+      "user_message": "I have an exam tomorrow, but I’ve forgotten what I studied",
+      "reference_reply": "It seems like you’re feeling a lot of pressure and worry about your exam tomorrow. When there’s so much stress, it can be hard to clearly recall what you’ve studied, even if you actually know it. That feeling of your mind going blank can be really uncomfortable. I understand how overwhelming this situation might feel for you right now.",
+      "chatbot_reply": "It sounds like you’re really frustrated and upset about the exam tomorrow. The pressure to remember what you’ve studied can be overwhelming, and it’s normal to feel that way. It’s like your mind is racing and you’re trying to recall everything, but it’s just not sticking. I can imagine how stressful that must feel. I understand how difficult it is when you’re trying so hard to remember everything but your thoughts feel scattered. It can feel exhausting and heavy when nothing seems to stay clear in your mind."
+    },
+    {
+      "id": "ex2",
+      "user_message": "I want to pass exam",
+      "reference_reply": "You’re feeling angry about not being able to remember what you studied, and it’s affecting your desire to pass the exam. I get that. You’re putting a lot of effort into this, and it’s really frustrating when it doesn’t feel like it’s paying off. It’s like you’re at a dead end, and you don’t know how to move forward. You want to pass this exam, and it’s reasonable to feel angry when it seems like it’s slipping out of your reach. I understand how intense and overwhelming that feeling can be when you’re trying so hard and still struggling to recall what you studied. What’s one thing that’s making you feel most anxious about not being prepared?",
+      "chatbot_reply": "You're feeling angry about not being able to remember what you studied, and it's affecting your desire to pass the exam. I get that. You're putting a lot of effort into this, and it's frustrating when it doesn't feel like it's paying off. It's like you're at a dead end, and you don't know how to move forward. You want to pass this exam, and it's reasonable to feel angry when it seems like it's slipping out of your reach. What's one thing that's making you feel most anxious about not being prepared?"
+    },
+    {
+      "id": "ex3",
+      "user_message": "i have fear because i fail my exam",
+      "reference_reply": "It sounds like you’re really scared about the possibility of failing the exam. That fear is valid, and it’s normal to feel that way when you’re worried about not doing well. You’re putting a lot of pressure on yourself to pass, and the thought of failing is making you feel fearful. I can understand how heavy and overwhelming that feeling can be when you start thinking about the exam outcome. It may feel like everything depends on this one result, and that can increase your anxiety even more. Can you tell me what’s going through your mind when you think about failing the exam?",
+      "chatbot_reply": "It sounds like you're really scared about the possibility of failing the exam. That fear is valid, and it's normal to feel that way when you're worried about not doing well. You're putting a lot of pressure on yourself to pass, and the thought of failing is making you feel fearful. Can you tell me what's going through your mind when you think about failing the exam?"
+    },
+    {
+      "id": "ex4",
+      "user_message": "i have stress with my exam",
+      "reference_reply": "It sounds like the stress about the exam is really building up for you. You’re already feeling anxious and fearful, and now the stress is piling on top of that. I can imagine how overwhelming it must feel. It’s like you’re carrying this weight on your shoulders, and it’s making it hard to breathe. Remember, you’re not alone in this. This is a normal feeling, and it’s okay to feel stressed. Can you take a deep breath and tell me one small thing you can do today to take tiny steps towards feeling more prepared?",
+      "chatbot_reply": "It sounds like the stress about the exam is really building up for you. You're already feeling anxious and fearful, and now the stress is piling on top of that. I can imagine how overwhelming it must feel. It's like you're carrying this weight on your shoulders, and it's making it hard to breathe. Remember, you're not alone in this. This is a normal feeling, and it's okay to feel stressed. Can you take a deep breath and tell me one thing you can do today to take tiny steps towards feeling more prepared?"
+    },
+    {
+      "id": "ex5",
+      "user_message": "i am very sad today.. because my pet is missing",
+      "reference_reply": "I’m so sorry to hear that you’re feeling sad today. Losing a pet can be incredibly painful, and it’s normal to feel a deep sense of sadness and loss. It sounds like your pet’s disappearance is really affecting you, and I can imagine how scary and upsetting it must be. You must be feeling really worried about your pet’s safety and well-being. I can understand how painful and overwhelming this situation must feel for you right now. Can you tell me a bit more about your pet, and what they mean to you?",
+      "chatbot_reply": "I'm so sorry to hear that you're feeling sad today. Losing a pet can be incredibly painful, and it's normal to feel a deep sense of sadness and loss. It sounds like your pet's disappearance is really affecting you, and I can imagine how scary and upsetting it must be. You must be feeling really worried about your pet's safety and well-being. Can you tell me a bit more about your pet, and what they mean to you?"
+    },
+    {
+      "id": "ex6",
+      "user_message": "today i am very happy, because i passed my exam",
+      "reference_reply": "I’m beyond thrilled to hear that you passed your exam! That’s amazing news, and it’s totally understandable why you’d be feeling so happy and relieved. You must be feeling like a weight has been lifted off your shoulders, and you’re probably thinking about all the things you can celebrate now. It’s wonderful to see you’re feeling this way after all the stress and anxiety you were feeling earlier. You deserve to feel proud of yourself and your accomplishment. What’s the first thing you’re going to do to celebrate?",
+      "chatbot_reply": "I'm beyond thrilled to hear that you passed your exam! That's amazing news, and it's totally understandable why you'd be feeling so happy and relieved. You must be feeling like a weight has been lifted off your shoulders, and you're probably thinking about all the things you can celebrate now. It's wonderful to see you're feeling this way after all the stress and anxiety you were feeling earlier. You deserve to feel proud of yourself and your accomplishment. What's the first thing you're going to do to celebrate?"
+    },
+    {
+      "id": "ex7",
+      "user_message":"i want to buy a car. bu i have not money",
+      "reference_reply":"It sounds like you’re really frustrated about not being able to afford a car right now. It can be tough when we feel like we can’t have something we really want, especially when it feels like everyone else seems to be able to afford it easily. I can understand how disappointing and stressful that situation must feel for you. It sounds like this is something that’s really important to you right now. What’s going on with you that makes having a car feel so important?",
+      "chatbot_reply":"It sounds like you're really frustrated about not being able to afford a car right now. It can be tough when we feel like we can't have something we really want, especially when it feels like everyone else seems to be able to afford it easily. What's going on with you that makes having a car feel so important?"
+    },
+    {
+      "id": "ex8",
+      "user_message":"i wnat to travel also",
+      "reference_reply":"You’re feeling really happy and carefree, and it sounds like you’re starting to see a future where you can do all the things you want to do, like having a car to get to work and traveling whenever you feel like it. That’s a really great feeling! It’s like you’re dreaming big and feeling hopeful about your possibilities. I can understand how exciting and positive this moment feels for you. What’s the most exciting place you’ve always wanted to travel to?",
+      "chatbot_reply":"You're feeling really happy and carefree, and it sounds like you're starting to see a future where you can do all the things you want to do, like having a car to get to work and traveling whenever you feel like it. That's a really great feeling! It's like you're dreaming big and feeling hopeful about your possibilities. What's the most exciting place you've always wanted to travel to?"
+    },
+    {
+      "id": "ex9",
+      "user_message":"i wnat to car for go to job",
+      "reference_reply":"It’s great that you have a job to go to, having a purpose and a routine can be really fulfilling. And having a car can definitely make traveling to work a lot easier and less stressful. I can sense a bit of excitement and optimism in your message - you’re looking forward to being able to get to work without any hassle. I can understand how important this goal feels for you right now. How are you planning to make this goal of getting a car a reality?",
+      "chatbot_reply":"It's great that you have a job to go to - having a purpose and a routine can be really fulfilling. And having a car can definitely make traveling to work a lot easier and less stressful. I can sense a bit of excitement and optimism in your message - you're looking forward to being able to get to work without any hassle. How are you planning to make this goal of getting a car a reality?"
+    },
+    {
+      "id": "ex10",
+      "user_message":"today i am fear",
+      "reference_reply":"Now your feeling fear and I can understand you. That can be really overwhelming. I’m here to listen and support you. It sounds like things might be feeling uncertain or scary for you today. I can understand how heavy and uncomfortable this feeling must be for you right now. Can you tell me more about what’s causing this feeling of fear?",
+      "chatbot_reply":"You're feeling a lot of fear right now. That can be really overwhelming. I'm here to listen and support you. It sounds like things might be feeling a bit uncertain or scary to you today. Can you tell me more about what's causing this feeling of fear?"
+    },
+    {
+      "id": "ex11",
+      "user_message":"today i have very stress",
+      "reference_reply":"Your feeling really overwhelmed and stressed today.I can Understand you. You mentioned earlier about wanting to buy a car and traveling, but it seems like now those things are causing you more anxiety. I’m here to support you, not to add to your stress. Sometimes, when we have too many things on our plate, it can feel like everything is piling up. I can understand how heavy that must feel for you right now. What’s one small thing you could do today to ease some of that stress?",
+      "chatbot_reply":"It sounds like you're feeling really overwhelmed and stressed today. You mentioned earlier about wanting to buy a car and traveling, but it seems like now those things are causing you more anxiety. I'm here to support you, not to add to your stress. Sometimes, when we have too many things on our plate, it can feel like everything is piling up. What's one small thing you could do today to ease some of that stress?"
+    },
+    {
+      "id": "ex12",
+      "user_message":"today i am so hungry",
+      "reference_reply":"I can understand that you’re not just feeling hungry, but also quite exhausted. It feels like your energy is completely drained, and even simple things like eating are becoming difficult. I understand how heavy and tiring that must feel for you right now. Sometimes, when we feel like this, even small and simple things can bring comfort. Let’s focus on getting some nourishment into you. What sounds like something you’d like to eat right now?",
+      "chatbot_reply":"I can sense that you're not just feeling hungry, but also quite exhausted. It's like all your energy is depleted, and even simple things like eating are becoming a challenge. You know what? Sometimes, when we're feeling this way, the simplest things can be the most comforting. Why don't we focus on getting some nourishment into you? What sounds like something you'd like to eat now?"
+    }
+
+  ]
+}
+

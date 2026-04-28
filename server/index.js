@@ -20,6 +20,7 @@ import cors from 'cors';
 import OpenAI from 'openai';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import { computeRougeDataset } from './eval/rouge.js';
 import {
   findUserByEmail,
   createUser,
@@ -1065,6 +1066,30 @@ app.post('/api/chat', async (req, res) => {
   }
 
   res.json({ reply, emotion, fallback: fallback || undefined });
+});
+
+// ----- Evaluation: ROUGE (requires login) -----
+app.post('/api/eval/rouge', (req, res) => {
+  const userId = getUserIdFromReq(req);
+  if (!userId) return res.status(401).json({ error: 'unauthorized' });
+
+  const { examples, predictions, references, returnPerExample } = req.body || {};
+
+  let rows = [];
+  if (Array.isArray(examples)) {
+    rows = examples;
+  } else if (Array.isArray(predictions) && Array.isArray(references) && predictions.length === references.length) {
+    rows = predictions.map((p, i) => ({ candidate: p, reference: references[i] }));
+  }
+
+  if (!Array.isArray(rows) || rows.length === 0) {
+    return res.status(400).json({
+      error: 'Provide {examples:[{candidate,reference}]} or {predictions:[...], references:[...]}',
+    });
+  }
+
+  const scores = computeRougeDataset(rows, { returnPerExample: !!returnPerExample });
+  return res.json(scores);
 });
 
 // Health check
